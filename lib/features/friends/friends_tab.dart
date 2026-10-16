@@ -10,19 +10,19 @@ import '../../data/models/social.dart';
 import '../../shared/widgets/common.dart';
 import '../../shared/widgets/net_image.dart';
 import '../../state/app_data_controller.dart';
-import '../shell/home_tab.dart';
 import '../timeline/user_timeline_screen.dart';
 
-/// Friends tab — port of components/social/FriendsScreen.tsx.
+/// Friends — port of components/social/FriendsScreen.tsx. On mobile it is a
+/// full screen opened from "আরও" (web shows it as the 3rd top tab).
 /// Friend status changes go through `setFriends` → `PUT /sync/friends`.
-class FriendsTab extends ConsumerStatefulWidget {
-  const FriendsTab({super.key});
+class FriendsScreen extends ConsumerStatefulWidget {
+  const FriendsScreen({super.key});
 
   @override
-  ConsumerState<FriendsTab> createState() => _FriendsTabState();
+  ConsumerState<FriendsScreen> createState() => _FriendsScreenState();
 }
 
-class _FriendsTabState extends ConsumerState<FriendsTab> {
+class _FriendsScreenState extends ConsumerState<FriendsScreen> {
   String _tab = 'friends'; // friends | requests | search
   String _query = '';
 
@@ -35,24 +35,24 @@ class _FriendsTabState extends ConsumerState<FriendsTab> {
     final search = friends.where((f) => f.name.toLowerCase().contains(q) || f.location.toLowerCase().contains(q)).toList();
     final list = switch (_tab) { 'requests' => requests, 'search' => search, _ => mine };
 
-    return Column(children: [
-      Container(
-        color: AppColors.maroon,
-        padding: const EdgeInsets.fromLTRB(4, 4, 16, 0),
-        child: Column(children: [
-          Row(children: [
-            IconButton(
-              onPressed: () => ref.read(homeTabProvider.notifier).select(HomeTab.home),
-              icon: const Icon(LucideIcons.arrowLeft, color: Colors.white, size: 20),
-            ),
-            Text('মায়েদের কমিউনিটি ও ফ্রেন্ডস', style: ts(14, weight: bold, color: Colors.white)),
-          ]),
-          Row(children: [
+    return Scaffold(
+      appBar: AppBar(title: const Text('মায়েদের কমিউনিটি ও ফ্রেন্ডস')),
+      body: Column(children: [
+      Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+        child: Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.sandA(0.6)),
+          ),
+          child: Row(children: [
             _subTab('friends', 'আমার ফ্রেন্ডস (${toBnDigits(mine.length)})'),
-            _subTab('requests', 'ফ্রেন্ড রিকোয়েস্ট (${toBnDigits(requests.length)})'),
+            _subTab('requests', 'রিকোয়েস্ট (${toBnDigits(requests.length)})'),
             _subTab('search', 'মায়েদের খুঁজুন'),
           ]),
-        ]),
+        ),
       ),
       Expanded(
         child: RefreshIndicator(
@@ -82,21 +82,24 @@ class _FriendsTabState extends ConsumerState<FriendsTab> {
           ]),
         ),
       ),
-    ]);
+    ]),
+    );
   }
 
   Widget _subTab(String id, String label) => Expanded(
-        child: InkWell(
+        child: GestureDetector(
           onTap: () => setState(() => _tab = id),
-          child: Container(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
             padding: const EdgeInsets.symmetric(vertical: 10),
             decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: _tab == id ? AppColors.gold : Colors.transparent, width: 3)),
+              color: _tab == id ? AppColors.maroon : Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
             ),
             alignment: Alignment.center,
             child: Text(label,
                 textAlign: TextAlign.center,
-                style: ts(11, weight: bold, color: _tab == id ? Colors.white : Colors.white.withValues(alpha: 0.65))),
+                style: ts(11.5, weight: bold, color: _tab == id ? Colors.white : AppColors.grey600)),
           ),
         ),
       );

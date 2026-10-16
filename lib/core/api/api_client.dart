@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '../config/env.dart';
 import 'api_exception.dart';
@@ -57,7 +58,8 @@ class ApiClient {
         queryParameters: query?..removeWhere((_, v) => v == null),
         options: Options(method: method, headers: headers),
       );
-    } on DioException {
+    } on DioException catch (e) {
+      debugPrint('[api] $method $path → ${e.type}: ${e.message ?? e.error}');
       throw ApiException.network();
     }
 

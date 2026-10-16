@@ -23,10 +23,12 @@ class WelcomeScreen extends ConsumerWidget {
               Container(
                 width: 112,
                 height: 112,
+                // No blurred BoxShadow here: on the Android emulator's Impeller
+                // backend it made the heart, badge and wordmark vanish.
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: AppColors.brandGradient,
-                  boxShadow: [BoxShadow(color: AppColors.maroon.withValues(alpha: 0.25), blurRadius: 24, offset: const Offset(0, 8))],
+                  border: Border.all(color: AppColors.sandA(0.6), width: 4),
                 ),
                 child: const Icon(LucideIcons.heart, color: Colors.white, size: 52),
               ),

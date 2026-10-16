@@ -35,23 +35,16 @@ class _NotificationsSheet extends ConsumerWidget {
     return ConstrainedBox(
       constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.8),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Container(
-          decoration: const BoxDecoration(
-            color: AppColors.maroon,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          padding: const EdgeInsets.fromLTRB(20, 14, 8, 14),
-          child: Row(children: [
-            const Icon(LucideIcons.bell, color: Colors.white, size: 18),
-            const SizedBox(width: 8),
-            Expanded(child: Text('নোটিফিকেশন', style: ts(15, weight: bold, color: Colors.white))),
-            IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(LucideIcons.x, color: Colors.white, size: 20)),
-          ]),
-        ),
+        const SheetHandle(),
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 10, 12, 6),
+          padding: const EdgeInsets.fromLTRB(20, 4, 12, 0),
           child: Row(children: [
-            Expanded(child: Text('সাম্প্রতিক আপডেটসমূহ', style: ts(12, weight: semi, color: AppColors.grey600))),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('নোটিফিকেশন', style: ts(18, weight: FontWeight.w800, color: AppColors.maroon)),
+                Text('সাম্প্রতিক আপডেটসমূহ', style: ts(11.5, color: AppColors.grey500)),
+              ]),
+            ),
             TextButton(
               onPressed: () {
                 ref.read(appDataProvider.notifier).markAllNotificationsRead();
@@ -61,27 +54,30 @@ class _NotificationsSheet extends ConsumerWidget {
             ),
           ]),
         ),
-        const Divider(),
+        const SizedBox(height: 8),
         Flexible(
           child: list.isEmpty
-              ? Padding(
-                  padding: const EdgeInsets.all(32),
-                  child: Text('কোনো নতুন নোটিফিকেশন নেই।', style: ts(13, color: AppColors.grey500)),
-                )
+              ? const EmptyState(icon: LucideIcons.bellOff, title: 'কোনো নতুন নোটিফিকেশন নেই।')
               : ListView.separated(
                   shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   itemCount: list.length,
-                  separatorBuilder: (_, _) => const Divider(),
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
                   itemBuilder: (_, i) {
                     final n = list[i];
                     return Container(
-                      color: n.read ? null : AppColors.sandA(0.18),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: n.read ? Colors.white : AppColors.sandA(0.28),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: AppColors.sandA(n.read ? 0.5 : 0.9)),
+                      ),
+                      padding: const EdgeInsets.all(12),
                       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(color: AppColors.sandA(0.4), shape: BoxShape.circle),
-                          child: Icon(_icon(n.type), size: 15, color: AppColors.maroon),
+                          width: 38,
+                          height: 38,
+                          decoration: BoxDecoration(color: AppColors.maroon.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(12)),
+                          child: Icon(_icon(n.type), size: 17, color: AppColors.maroon),
                         ),
                         const SizedBox(width: 12),
                         Expanded(

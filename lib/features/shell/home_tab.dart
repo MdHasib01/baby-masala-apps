@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// `ActiveTab` in App.tsx.
-enum HomeTab { home, baby, friends, rewards, shop }
+/// Bottom-navigation tabs. Web's 5th top tab (ফ্রেন্ডস) lives under
+/// "আরও" (More) on mobile and opens as its own screen (`Routes.friends`).
+enum HomeTab { home, baby, rewards, shop }
 
 class HomeTabController extends Notifier<HomeTab> {
   @override

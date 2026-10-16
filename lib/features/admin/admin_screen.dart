@@ -74,15 +74,11 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
         appBar: AppBar(
           title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const Text('ডেমো অ্যাডমিন প্যানেল'),
-            Text('বেবি কেয়ার ও বেবি মসলা ম্যানেজমেন্ট কনসোল', style: ts(10, color: AppColors.sand)),
+            Text('বেবি কেয়ার ও বেবি মসলা ম্যানেজমেন্ট কনসোল', style: ts(10.5, color: AppColors.grey500)),
           ]),
           bottom: TabBar(
             isScrollable: true,
             tabAlignment: TabAlignment.start,
-            indicatorColor: AppColors.gold,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white70,
-            labelStyle: ts(12, weight: bold),
             tabs: [
               Tab(text: 'পোস্ট ও রিপোর্ট (${toBnDigits(d?.posts.length ?? 0)})'),
               Tab(text: 'অর্ডার ও ডেলিভারি (${toBnDigits(d?.orders.length ?? 0)})'),

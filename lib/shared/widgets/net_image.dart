@@ -46,6 +46,9 @@ class NetImage extends StatelessWidget {
         width: width,
         height: height,
         fit: fit,
+        // No fade: opacity animations glitch on the emulator's Impeller backend.
+        fadeInDuration: Duration.zero,
+        fadeOutDuration: Duration.zero,
         placeholder: (_, _) => _placeholder(loading: true),
         errorWidget: (_, _, _) => _placeholder(),
       );

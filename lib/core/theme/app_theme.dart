@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
 
 /// Light-only theme (the web app has no dark mode). Font: Hind Siliguri.
+///
+/// Modern mobile look: light app bars with maroon titles, filled rounded
+/// inputs, 14–20 px radii, Material 3 bottom navigation with a sand pill.
+/// Avoid blurred BoxShadows (see MOBILE_SYNC.md — Impeller emulator bug);
+/// depth comes from borders and tonal fills instead.
 ThemeData buildAppTheme() {
   final base = ThemeData(
     useMaterial3: true,
@@ -22,25 +28,32 @@ ThemeData buildAppTheme() {
     displayColor: AppColors.ink,
   );
 
-  final radius = BorderRadius.circular(12);
+  final radius = BorderRadius.circular(14);
+  final hind = GoogleFonts.hindSiliguri;
   return base.copyWith(
     textTheme: text,
     appBarTheme: AppBarTheme(
-      backgroundColor: AppColors.maroon,
-      foregroundColor: Colors.white,
-      elevation: 2,
-      titleTextStyle: GoogleFonts.hindSiliguri(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
+      backgroundColor: AppColors.cream,
+      foregroundColor: AppColors.maroon,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      centerTitle: false,
+      systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent),
+      titleTextStyle: hind(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.maroon),
+      iconTheme: const IconThemeData(color: AppColors.maroon, size: 22),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: Colors.white,
       isDense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      hintStyle: GoogleFonts.hindSiliguri(fontSize: 13, color: AppColors.grey400),
-      border: OutlineInputBorder(borderRadius: radius, borderSide: const BorderSide(color: AppColors.sand)),
-      enabledBorder: OutlineInputBorder(borderRadius: radius, borderSide: const BorderSide(color: AppColors.sand)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      hintStyle: hind(fontSize: 13, color: AppColors.grey400),
+      prefixIconColor: AppColors.grey500,
+      border: OutlineInputBorder(borderRadius: radius, borderSide: BorderSide(color: AppColors.sandA(0.7))),
+      enabledBorder: OutlineInputBorder(borderRadius: radius, borderSide: BorderSide(color: AppColors.sandA(0.7))),
       focusedBorder:
-          OutlineInputBorder(borderRadius: radius, borderSide: const BorderSide(color: AppColors.maroon, width: 1.4)),
+          OutlineInputBorder(borderRadius: radius, borderSide: const BorderSide(color: AppColors.maroon, width: 1.5)),
       errorBorder: OutlineInputBorder(borderRadius: radius, borderSide: const BorderSide(color: AppColors.red600)),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -49,44 +62,91 @@ ThemeData buildAppTheme() {
         foregroundColor: Colors.white,
         disabledBackgroundColor: AppColors.grey200,
         elevation: 0,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        minimumSize: const Size(0, 48),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: radius),
-        textStyle: GoogleFonts.hindSiliguri(fontSize: 14, fontWeight: FontWeight.w700),
+        textStyle: hind(fontSize: 14, fontWeight: FontWeight.w700),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.maroon,
         side: const BorderSide(color: AppColors.sand),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        minimumSize: const Size(0, 48),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: radius),
-        textStyle: GoogleFonts.hindSiliguri(fontSize: 14, fontWeight: FontWeight.w700),
+        textStyle: hind(fontSize: 14, fontWeight: FontWeight.w700),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: AppColors.maroon,
-        textStyle: GoogleFonts.hindSiliguri(fontSize: 13, fontWeight: FontWeight.w700),
+        textStyle: hind(fontSize: 13, fontWeight: FontWeight.w700),
       ),
     ),
-    dividerTheme: const DividerThemeData(color: AppColors.sand, thickness: 1, space: 1),
-    bottomSheetTheme: const BottomSheetThemeData(
+    navigationBarTheme: NavigationBarThemeData(
       backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      height: 68,
+      indicatorColor: AppColors.sandA(0.55),
+      indicatorShape: const StadiumBorder(),
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+      iconTheme: WidgetStateProperty.resolveWith(
+        (s) => IconThemeData(
+          size: 22,
+          color: s.contains(WidgetState.selected) ? AppColors.maroon : AppColors.ink.withValues(alpha: 0.55),
+        ),
+      ),
+      labelTextStyle: WidgetStateProperty.resolveWith(
+        (s) => hind(
+          fontSize: 11.5,
+          fontWeight: s.contains(WidgetState.selected) ? FontWeight.w700 : FontWeight.w500,
+          color: s.contains(WidgetState.selected) ? AppColors.maroon : AppColors.ink.withValues(alpha: 0.6),
+        ),
+      ),
+    ),
+    tabBarTheme: TabBarThemeData(
+      labelColor: AppColors.maroon,
+      unselectedLabelColor: AppColors.grey500,
+      indicatorColor: AppColors.maroon,
+      dividerColor: AppColors.sandA(0.6),
+      labelStyle: hind(fontSize: 12.5, fontWeight: FontWeight.w700),
+      unselectedLabelStyle: hind(fontSize: 12.5, fontWeight: FontWeight.w600),
+    ),
+    dividerTheme: DividerThemeData(color: AppColors.sandA(0.7), thickness: 1, space: 1),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: AppColors.cream,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
       showDragHandle: true,
+      dragHandleColor: AppColors.sand,
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+    ),
+    popupMenuTheme: PopupMenuThemeData(
+      color: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: AppColors.sandA(0.6))),
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
       backgroundColor: AppColors.ink,
-      contentTextStyle: GoogleFonts.hindSiliguri(color: Colors.white, fontSize: 13),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      contentTextStyle: hind(color: Colors.white, fontSize: 13),
     ),
     chipTheme: base.chipTheme.copyWith(
-      side: const BorderSide(color: AppColors.sand),
+      side: BorderSide(color: AppColors.sandA(0.8)),
       shape: const StadiumBorder(),
+    ),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: AppColors.maroon,
+      foregroundColor: Colors.white,
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
     ),
   );
 }

@@ -70,15 +70,15 @@ class AppCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: color ?? Colors.white,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(20),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         onTap: onTap,
         child: Container(
           padding: padding,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.sand),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.sandA(0.55)),
           ),
           child: child,
         ),
@@ -334,6 +334,40 @@ class Wordmark extends StatelessWidget {
       );
 }
 
+/// Small rounded grab handle for sheets that set `showDragHandle: false`.
+class SheetHandle extends StatelessWidget {
+  const SheetHandle({super.key});
+  @override
+  Widget build(BuildContext context) => Center(
+        child: Container(
+          margin: const EdgeInsets.only(top: 10, bottom: 6),
+          width: 40,
+          height: 4,
+          decoration: BoxDecoration(color: AppColors.sand, borderRadius: BorderRadius.circular(4)),
+        ),
+      );
+}
+
+/// Round tonal icon button used in the top bar (messenger, bell, …).
+class TonalIconButton extends StatelessWidget {
+  const TonalIconButton({super.key, required this.icon, required this.onPressed, this.badge = 0, this.tooltip});
+  final IconData icon;
+  final VoidCallback onPressed;
+  final int badge;
+  final String? tooltip;
+
+  @override
+  Widget build(BuildContext context) => CountBadge(
+        count: badge,
+        child: IconButton.filledTonal(
+          tooltip: tooltip,
+          style: IconButton.styleFrom(backgroundColor: Colors.white, side: BorderSide(color: AppColors.sandA(0.7))),
+          onPressed: onPressed,
+          icon: Icon(icon, size: 20, color: AppColors.maroon),
+        ),
+      );
+}
+
 /// Sheet with a title row and a close button; used for every modal.
 Future<T?> showAppSheet<T>(BuildContext context, {required String title, required WidgetBuilder builder, bool scroll = true}) {
   return showModalBottomSheet<T>(
@@ -346,14 +380,18 @@ Future<T?> showAppSheet<T>(BuildContext context, {required String title, require
       child: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.92),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
+          const SheetHandle(),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 14, 8, 6),
+            padding: const EdgeInsets.fromLTRB(20, 4, 8, 4),
             child: Row(children: [
-              Expanded(child: Text(title, style: ts(15, weight: bold, color: AppColors.maroon))),
-              IconButton(onPressed: () => Navigator.pop(ctx), icon: const Icon(LucideIcons.x, size: 20)),
+              Expanded(child: Text(title, style: ts(17, weight: bold, color: AppColors.maroon))),
+              IconButton.filledTonal(
+                style: IconButton.styleFrom(backgroundColor: AppColors.sandA(0.35)),
+                onPressed: () => Navigator.pop(ctx),
+                icon: const Icon(LucideIcons.x, size: 18, color: AppColors.maroon),
+              ),
             ]),
           ),
-          const Divider(),
           Flexible(
             child: scroll
                 ? SingleChildScrollView(padding: const EdgeInsets.fromLTRB(20, 14, 20, 24), child: builder(ctx))

@@ -48,6 +48,12 @@ Checks:
 **Build notes**
 - `android/gradle.properties` has `kotlin.incremental=false`. Without it, Kotlin compilation of plugins fails with "Could not close incremental caches", because the project is on `D:` and the pub cache is on `C:`.
 - `google_fonts` is pinned to `^6.3.3`. Version 9 depends on the separate `material_ui` package, whose `TextTheme` is a different class from the one in Flutter 3.47's material library.
+- **Impeller rendering rules.** The dev emulator (Android 17, x86_64) shows these Impeller bugs: widgets disappear or maroon streaks appear. Keep the UI working there:
+  - Use no blurred `BoxShadow`; use borders or tonal fills instead.
+  - Use no fade or opacity animations: no `AnimatedSwitcher`, and keep `CachedNetworkImage` fade at zero.
+  - Keep Flutter's default page transitions.
+  - Give bars that sit next to clipped avatars a solid background.
+  - To check whether a glitch is Impeller's fault, run with `--no-enable-impeller`.
 - The build warns that `flutter_image_compress_common` still uses the Kotlin Gradle Plugin. The warning is harmless for now; upgrade the plugin when a built-in-Kotlin version is released.
 
 ---
@@ -84,8 +90,9 @@ Checks:
 | 4 | Sign-up | `components/auth/SignUpScreen.tsx` | `features/auth/signup_screen.dart` | `POST /auth/request-otp` (signup) | ✅ |
 | 5 | Code entry (6 boxes, 59 s resend) | `components/auth/LoginVerifyScreen.tsx` | `features/auth/verify_screen.dart` | `POST /auth/verify-otp` | ✅ |
 | 6 | Membership activation + demo checkout | `components/auth/MembershipActivationScreen.tsx` | `features/auth/membership_screen.dart` | `POST /auth/activate-membership`, `POST /auth/demo-purchase` | ✅ |
-| 7 | Header + 5 tabs | `components/Header.tsx` | `features/shell/home_shell.dart` | – | 🟡 Admin button shown to admins only (§6) |
-| 8 | Profile drawer | `components/profile/ProfileDrawer.tsx` | `features/shell/app_drawer.dart` | `POST /auth/activate-membership` | 🟡 adds Address and Settings links; coupon calls the API (§6) |
+| 7 | Header + 5 top tabs | `components/Header.tsx` | `features/shell/home_shell.dart` | – | 🟡 **bottom navigation** with a raised centre Home button; Friends moved under "আরও" (§6 M20) |
+| 8 | Profile drawer | `components/profile/ProfileDrawer.tsx` | `features/shell/more_sheet.dart` ("আরও" sheet) | `POST /auth/activate-membership` | 🟡 replaced by the More sheet; adds Address, Settings, Orders, Notifications, Admin; coupon calls the API (§6) |
+| 15b | Friends screen | `components/social/FriendsScreen.tsx` (a top tab on web) | `features/friends/friends_tab.dart` (`FriendsScreen`, route `/friends`) | `PUT /sync/friends` | 🟡 full screen opened from "আরও" |
 | 9 | Community feed | `tabs/CommunityTab.tsx` | `features/community/community_tab.dart`, `post_card.dart` | `/posts*` | 🟡 adds pull-to-refresh and infinite scroll (§6) |
 | 10 | Create / edit post | CommunityTab modal | `features/community/post_composer.dart` | `POST /posts`, `PATCH /posts/:id` | 🟡 image picker instead of URL field; label says "+৫" |
 | 11 | Comments thread | CommunityTab modal | `features/community/comments_sheet.dart` | `GET/POST /posts/:id/comments` | 🟡 re-fetches comments when opened |
@@ -198,6 +205,8 @@ The user decided to fix these web gaps on mobile. Port them to the web when conv
 | M17 | Edit profile saves at once (not debounced) and re-bootstraps, so posts show the new name and avatar | `user_timeline_screen.dart` | the web relies on the debounced `PATCH /me` | ⬜ |
 | M18 | Ages and counts use Bengali digits (`৯ মাস`), where the web shows Latin digits | `core/utils/bn_digits.dart` | cosmetic | ⬜ |
 | M19 | "Save chart" shows a toast instead of `alert()` | `my_baby_tab.dart` | – | n/a |
+| M20 | **Navigation redesign.** Bottom bar: মাই বেবি · রিওয়ার্ডস · **হোম** (raised gradient circle in the centre, gold ring when active) · শপ (cart badge) · আরও. "আরও" opens a sheet holding every drawer option: profile card (→ own timeline), points and child shortcuts, ফ্রেন্ডস, মেসেঞ্জার, ডাক্তার, রেসিপি, নোটিফিকেশন, আমার অর্ডার, পয়েন্ট ও গিফট, ঠিকানা, সেটিংস, অ্যাডমিন (admins only), membership coupon, logout. The top bar shows the avatar (→ own timeline), the wordmark or tab title, and the messenger and bell buttons. The drawer was removed. | `home_shell.dart`, `more_sheet.dart`, `home_tab.dart` | Optional: the web is desktop/mobile-web, so it can keep its top tabs | n/a |
+| M21 | Modern visual pass: light app bars with maroon titles, 20 px cards, 14 px inputs and buttons, 28 px sheets with a grab handle, card-style notifications, segmented Friends sub-tabs. The palette is unchanged. | `app_theme.dart`, `common.dart`, screens | – | n/a |
 
 Things deliberately kept **the same as the web** (demo behaviour):
 - The long-press reaction picker sends the same like toggle for every emoji, because the API has no reaction types.
@@ -263,6 +272,8 @@ Add a dated entry for **every** mobile change that affects screens, API usage, m
 
 | Date | Change | Files | Web follow-up? |
 |---|---|---|---|
+| 2026-10-17 | Bottom navigation with a centre Home circle, "আরও" More sheet (replaces the drawer), Friends as its own route, modern theme pass (§6 M20–M21). Impeller-safe: no blurred shadows, no fade/opacity animations (`AnimatedSwitcher`, image fade-in), no zoom page transitions, solid background behind the top bar. | `features/shell/*`, `friends_tab.dart`, `app_theme.dart`, `common.dart`, `net_image.dart`, `notifications_sheet.dart`, `messenger_screen.dart`, `admin_screen.dart`, `app_router.dart` | No (mobile-only UX) |
+| 2026-10-17 | Welcome logo: replaced the blurred `BoxShadow` with a border. On the Android emulator's Impeller backend the blur made the heart, badge and wordmark disappear. `ApiClient` now `debugPrint`s the underlying `DioException` on network errors. | `welcome_screen.dart`, `api_client.dart` | No |
 | 2026-10-16 | Initial Flutter app: all 29 screens/overlays in §3, the API client mirroring `babyCareService.ts`, Riverpod store with 600 ms debounced sync, resume refresh, image picker uploads, 22 unit tests | `mobile/**` | See §6 M1–M19 |
 
 ---

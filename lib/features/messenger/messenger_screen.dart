@@ -199,8 +199,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             const SizedBox(width: 10),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(p.name, style: ts(14, weight: bold, color: Colors.white), overflow: TextOverflow.ellipsis),
-                Text('সক্রিয় (ডেমো) • প্রোফাইল দেখুন', style: ts(10, color: AppColors.sand)),
+                Text(p.name, style: ts(15, weight: bold, color: AppColors.maroon), overflow: TextOverflow.ellipsis),
+                Row(children: [
+                  Container(width: 7, height: 7, decoration: const BoxDecoration(color: AppColors.green700, shape: BoxShape.circle)),
+                  const SizedBox(width: 5),
+                  Text('সক্রিয় (ডেমো) • প্রোফাইল দেখুন', style: ts(10.5, color: AppColors.grey500)),
+                ]),
               ]),
             ),
           ]),
