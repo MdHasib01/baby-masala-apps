@@ -25,23 +25,52 @@ class AuthScaffold extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: IconButton.outlined(
-                  onPressed: onBack,
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    side: const BorderSide(color: AppColors.sand),
-                    foregroundColor: AppColors.maroon,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton.outlined(
+                    onPressed: onBack,
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      side: const BorderSide(color: AppColors.sand),
+                      foregroundColor: AppColors.maroon,
+                    ),
+                    icon: const Icon(LucideIcons.arrowLeft, size: 18),
                   ),
-                  icon: const Icon(LucideIcons.arrowLeft, size: 18),
-                ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.sandA(0.3),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.sandA(0.6)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ClipOval(
+                          child: Image.asset('assets/images/logo_icon.png', width: 16, height: 16),
+                        ),
+                        const SizedBox(width: 6),
+                        Text('Baby Care', style: ts(11, weight: bold, color: AppColors.maroon)),
+                      ],
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
               ...children,
               if (footer != null) ...[
                 const SizedBox(height: 28),
-                Text(footer!, textAlign: TextAlign.center, style: ts(11, color: AppColors.grey500)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ClipOval(
+                      child: Image.asset('assets/images/logo_icon.png', width: 14, height: 14),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(footer!, textAlign: TextAlign.center, style: ts(11, color: AppColors.grey500)),
+                  ],
+                ),
               ],
             ],
           ),

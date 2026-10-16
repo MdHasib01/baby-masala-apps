@@ -192,8 +192,18 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
               icon: const Icon(LucideIcons.logOut, size: 17),
               label: const Text('লগআউট'),
             ),
-            const SizedBox(height: 12),
-            Center(child: Text('Baby Care by Baby Masala', style: ts(10.5, color: AppColors.grey400))),
+            Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ClipOval(
+                    child: Image.asset('assets/images/logo_icon.png', width: 16, height: 16),
+                  ),
+                  const SizedBox(width: 6),
+                  Text('Baby Care by Baby Masala', style: ts(10.5, color: AppColors.grey400)),
+                ],
+              ),
+            ),
           ]),
         ),
       ),

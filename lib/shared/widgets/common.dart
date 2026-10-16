@@ -310,28 +310,85 @@ class _BusyButtonState extends State<BusyButton> {
   }
 }
 
-/// Brand wordmark: "Baby Care" + "by Baby Masala".
+/// Brand logo icon.
+class AppLogo extends StatelessWidget {
+  const AppLogo({
+    super.key,
+    this.size = 36,
+    this.border = true,
+  });
+
+  final double size;
+  final bool border;
+
+  @override
+  Widget build(BuildContext context) {
+    final img = Image.asset(
+      'assets/images/logo.png',
+      width: size,
+      height: size,
+      fit: BoxFit.contain,
+    );
+    if (!border) return img;
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: AppColors.sandA(0.6), width: 1.5),
+      ),
+      child: ClipOval(child: img),
+    );
+  }
+}
+
+/// Brand wordmark: "Baby Care" + "by Baby Masala", optionally accompanied by the logo icon.
 class Wordmark extends StatelessWidget {
-  const Wordmark({super.key, this.size = 18, this.light = false, this.center = false});
+  const Wordmark({
+    super.key,
+    this.size = 18,
+    this.light = false,
+    this.center = false,
+    this.withLogo = false,
+    this.logoSize,
+  });
+
   final double size;
   final bool light;
   final bool center;
+  final bool withLogo;
+  final double? logoSize;
 
   @override
-  Widget build(BuildContext context) => Column(
-        crossAxisAlignment: center ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('Baby Care', style: ts(size, weight: FontWeight.w800, color: light ? Colors.white : AppColors.maroon, height: 1.1)),
-          Text('BY BABY MASALA',
-              style: TextStyle(
-                fontSize: size * 0.48,
-                fontWeight: bold,
-                letterSpacing: 1.4,
-                color: light ? AppColors.sand : AppColors.olive,
-              )),
-        ],
-      );
+  Widget build(BuildContext context) {
+    final textColumn = Column(
+      crossAxisAlignment: center ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('Baby Care', style: ts(size, weight: FontWeight.w800, color: light ? Colors.white : AppColors.maroon, height: 1.1)),
+        Text('BY BABY MASALA',
+            style: TextStyle(
+              fontSize: size * 0.48,
+              fontWeight: bold,
+              letterSpacing: 1.4,
+              color: light ? AppColors.sand : AppColors.olive,
+            )),
+      ],
+    );
+
+    if (!withLogo) return textColumn;
+
+    final effectiveLogoSize = logoSize ?? (size * 1.6);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        AppLogo(size: effectiveLogoSize),
+        const SizedBox(width: 8),
+        textColumn,
+      ],
+    );
+  }
 }
 
 /// Small rounded grab handle for sheets that set `showDragHandle: false`.

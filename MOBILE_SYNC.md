@@ -272,6 +272,7 @@ Add a dated entry for **every** mobile change that affects screens, API usage, m
 
 | Date | Change | Files | Web follow-up? |
 |---|---|---|---|
+| 2026-10-17 | Bottom bar: the Home circle is now solid button maroon (no gradient), with a gold ring when active. The white bar rises in a smooth rounded bump around it (`_BarShapePainter`). Launcher icon set in `mipmap-*` (`ic_launcher`, `ic_launcher_round`). | `home_shell.dart`, `android/app/src/main/res/mipmap-*`, `AndroidManifest.xml` | No |
 | 2026-10-17 | Bottom navigation with a centre Home circle, "আরও" More sheet (replaces the drawer), Friends as its own route, modern theme pass (§6 M20–M21). Impeller-safe: no blurred shadows, no fade/opacity animations (`AnimatedSwitcher`, image fade-in), no zoom page transitions, solid background behind the top bar. | `features/shell/*`, `friends_tab.dart`, `app_theme.dart`, `common.dart`, `net_image.dart`, `notifications_sheet.dart`, `messenger_screen.dart`, `admin_screen.dart`, `app_router.dart` | No (mobile-only UX) |
 | 2026-10-17 | Welcome logo: replaced the blurred `BoxShadow` with a border. On the Android emulator's Impeller backend the blur made the heart, badge and wordmark disappear. `ApiClient` now `debugPrint`s the underlying `DioException` on network errors. | `welcome_screen.dart`, `api_client.dart` | No |
 | 2026-10-16 | Initial Flutter app: all 29 screens/overlays in §3, the API client mirroring `babyCareService.ts`, Riverpod store with 600 ms debounced sync, resume refresh, image picker uploads, 22 unit tests | `mobile/**` | See §6 M1–M19 |

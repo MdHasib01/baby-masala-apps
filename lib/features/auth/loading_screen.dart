@@ -28,7 +28,20 @@ class LoadingScreen extends ConsumerWidget {
                   ]),
                 ])
               : Column(mainAxisSize: MainAxisSize.min, children: [
-                  const Wordmark(size: 26, center: true),
+                  Container(
+                    width: 76,
+                    height: 76,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      border: Border.all(color: AppColors.sand, width: 2),
+                    ),
+                    child: ClipOval(
+                      child: Image.asset('assets/images/logo.png', fit: BoxFit.cover),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Wordmark(size: 24, center: true),
                   const SizedBox(height: 24),
                   const CircularProgressIndicator(color: AppColors.maroon),
                   const SizedBox(height: 12),

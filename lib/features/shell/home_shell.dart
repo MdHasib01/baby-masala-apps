@@ -110,7 +110,7 @@ class _TopBar extends ConsumerWidget {
           child: Align(
             alignment: Alignment.centerLeft,
             child: title == null
-                ? const Wordmark(size: 19)
+                ? const Wordmark(size: 19, withLogo: true)
                 : Text(title!, style: ts(20, weight: FontWeight.w800, color: AppColors.maroon)),
           ),
         ),
@@ -144,9 +144,9 @@ class _BottomBar extends StatelessWidget {
   final VoidCallback onMore;
 
   static const _barHeight = 66.0;
-  static const _homeSize = 64.0;
-  static const _lift = 26.0; // how far the home circle rises above the bar
-  static const _homeBottom = 28.0; // circle bottom, above the "হোম" label
+  static const _homeSize = 58.0;
+  static const _lift = 30.0; // height of the rounded bump above the flat bar
+  static const _homeTop = 8.0; // circle top, inside the bump (6 px white margin)
 
   @override
   Widget build(BuildContext context) {
@@ -155,20 +155,16 @@ class _BottomBar extends StatelessWidget {
 
     return SizedBox(
       height: _barHeight + _lift + bottomInset,
-      child: Stack(clipBehavior: Clip.none, alignment: Alignment.bottomCenter, children: [
-        // ---- bar
+      child: Stack(clipBehavior: Clip.none, alignment: Alignment.topCenter, children: [
+        // ---- white bar with a rounded bump that wraps the home circle
+        const Positioned.fill(child: CustomPaint(painter: _BarShapePainter(lift: _lift))),
         Positioned(
           left: 0,
           right: 0,
           bottom: 0,
           height: _barHeight + bottomInset,
-          child: Container(
+          child: Padding(
             padding: EdgeInsets.only(bottom: bottomInset),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border(top: BorderSide(color: AppColors.sandA(0.6))),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            ),
             child: Row(children: [
               _item(LucideIcons.baby, 'মাই বেবি', active == HomeTab.baby, () => onSelect(HomeTab.baby)),
               _item(LucideIcons.gift, 'রিওয়ার্ডস', active == HomeTab.rewards, () => onSelect(HomeTab.rewards)),
@@ -193,9 +189,9 @@ class _BottomBar extends StatelessWidget {
             ]),
           ),
         ),
-        // ---- raised home circle
+        // ---- raised home circle (solid button maroon)
         Positioned(
-          bottom: bottomInset + _homeBottom,
+          top: _homeTop,
           child: Semantics(
             button: true,
             selected: homeOn,
@@ -209,11 +205,11 @@ class _BottomBar extends StatelessWidget {
                 height: _homeSize,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: AppColors.brandGradient,
-                  // cream ring makes it look "cut into" the bar; gold ring when active
-                  border: Border.all(color: homeOn ? AppColors.gold : AppColors.cream, width: 4),
+                  color: AppColors.maroon,
+                  // thin gold ring marks the active tab
+                  border: Border.all(color: homeOn ? AppColors.gold : AppColors.maroon, width: 3),
                 ),
-                child: Icon(LucideIcons.house, size: 27, color: homeOn ? Colors.white : AppColors.sand),
+                child: Icon(LucideIcons.house, size: 26, color: homeOn ? Colors.white : AppColors.sand),
               ),
             ),
           ),
@@ -247,4 +243,50 @@ class _BottomBar extends StatelessWidget {
           ]),
         ),
       );
+}
+
+/// White bottom-bar background: rounded top corners and a smooth rounded
+/// bump in the centre that wraps the home circle. Flat fill + hairline sand
+/// outline (no blur — Impeller-safe).
+class _BarShapePainter extends CustomPainter {
+  const _BarShapePainter({required this.lift});
+
+  /// y of the flat bar top; the bump peaks near y = 2.
+  final double lift;
+
+  static const _corner = 24.0;
+  static const _bumpHalf = 54.0; // half width of the bump base
+  static const _peak = 2.0;
+
+  Path _top(Size s) {
+    final c = s.width / 2;
+    return Path()
+      ..moveTo(0, lift + _corner)
+      ..quadraticBezierTo(0, lift, _corner, lift)
+      ..lineTo(c - _bumpHalf, lift)
+      ..cubicTo(c - _bumpHalf * 0.55, lift, c - _bumpHalf * 0.62, _peak, c, _peak)
+      ..cubicTo(c + _bumpHalf * 0.62, _peak, c + _bumpHalf * 0.55, lift, c + _bumpHalf, lift)
+      ..lineTo(s.width - _corner, lift)
+      ..quadraticBezierTo(s.width, lift, s.width, lift + _corner);
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final top = _top(size);
+    final fill = Path.from(top)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+    canvas.drawPath(fill, Paint()..color = Colors.white);
+    canvas.drawPath(
+      top,
+      Paint()
+        ..color = AppColors.sandA(0.7)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_BarShapePainter old) => old.lift != lift;
 }

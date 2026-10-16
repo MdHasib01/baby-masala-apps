@@ -21,16 +21,19 @@ class WelcomeScreen extends ConsumerWidget {
             const Spacer(),
             Stack(clipBehavior: Clip.none, alignment: Alignment.center, children: [
               Container(
-                width: 112,
-                height: 112,
-                // No blurred BoxShadow here: on the Android emulator's Impeller
-                // backend it made the heart, badge and wordmark vanish.
+                width: 120,
+                height: 120,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: AppColors.brandGradient,
-                  border: Border.all(color: AppColors.sandA(0.6), width: 4),
+                  color: Colors.white,
+                  border: Border.all(color: AppColors.maroon, width: 3.5),
                 ),
-                child: const Icon(LucideIcons.heart, color: Colors.white, size: 52),
+                child: ClipOval(
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
               Positioned(
                 bottom: -10,
