@@ -1,0 +1,382 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+
+import '../../core/theme/app_colors.dart';
+import '../../core/utils/bn_digits.dart';
+import '../../core/utils/image_data_url.dart';
+import '../../data/models/social.dart';
+import '../../shared/widgets/common.dart';
+import '../../shared/widgets/net_image.dart';
+import '../../state/app_data_controller.dart';
+import '../../state/providers.dart';
+import '../community/post_card.dart';
+import '../community/post_composer.dart';
+import '../friends/friends_tab.dart';
+
+/// `activeTimelineTarget` in App.tsx.
+class TimelineTarget {
+  const TimelineTarget.me()
+      : isMe = true,
+        friend = null,
+        authorName = null,
+        authorId = null;
+  const TimelineTarget.other({this.friend, this.authorName, this.authorId}) : isMe = false;
+
+  final bool isMe;
+  final FriendUser? friend;
+  final String? authorName;
+  final String? authorId;
+}
+
+const _defaultCover = 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=1200&auto=format&fit=crop&q=80';
+
+/// Port of components/social/UserTimelineScreen.tsx.
+class UserTimelineScreen extends ConsumerStatefulWidget {
+  const UserTimelineScreen({super.key, required this.target});
+  final TimelineTarget target;
+
+  @override
+  ConsumerState<UserTimelineScreen> createState() => _UserTimelineScreenState();
+}
+
+class _UserTimelineScreenState extends ConsumerState<UserTimelineScreen> {
+  String _tab = 'posts';
+
+  @override
+  Widget build(BuildContext context) {
+    final d = ref.watch(dataProvider);
+    final me = d.user;
+    final t = widget.target;
+    final isMe = t.isMe || t.friend?.name == me.name || t.authorName == me.name || (t.authorId != null && t.authorId == me.id);
+
+    // Resolve the friend record (or build a public profile from their posts).
+    final name = isMe ? me.name : (t.friend?.name ?? t.authorName ?? '');
+    final authorPosts = d.posts.where((p) => t.authorId != null ? p.authorId == t.authorId : p.authorName == name);
+    final friend = isMe
+        ? null
+        : d.friends.where((f) => f.id == t.friend?.id || f.name == name).firstOrNull ??
+            t.friend ??
+            FriendUser(
+              id: t.authorId ?? 'user-${name.hashCode.abs()}',
+              name: name,
+              avatar: authorPosts.firstOrNull?.authorAvatar ?? '',
+              bio: 'মাতৃত্বের সুন্দর যাত্রায় বেবি কেয়ার কমিউনিটির একজন সদস্য।',
+              location: 'ঢাকা, বাংলাদেশ',
+              mutualFriendsCount: 3,
+            );
+
+    final avatar = isMe ? me.avatar : friend!.avatar;
+    final bio = isMe ? ((me.bio?.isNotEmpty ?? false) ? me.bio! : 'মাতৃত্বের সুদিন ও শিশু পরিচর্যা নিয়ে আমার অভিজ্ঞতা।') : friend!.bio;
+    final location = isMe ? (me.defaultAddress?.details ?? 'ঢাকা, বাংলাদেশ') : friend!.location;
+    final cover = isMe ? (me.coverPhoto?.isNotEmpty ?? false ? me.coverPhoto! : _defaultCover) : _defaultCover;
+    final posts = isMe
+        ? d.posts.where((p) => p.authorId == me.id || p.authorName == me.name).toList()
+        : authorPosts.toList();
+    final photos = posts.where((p) => p.mediaUrl != null && !p.isVideo).map((p) => p.mediaUrl!).toList();
+
+    return Scaffold(
+      appBar: AppBar(title: Text('$name - এর টাইমলাইন', overflow: TextOverflow.ellipsis)),
+      body: ListView(padding: EdgeInsets.zero, children: [
+        // ---- cover + avatar
+        SizedBox(
+          height: 230,
+          child: Stack(children: [
+            NetImage(cover, height: 170, width: double.infinity),
+            if (isMe)
+              Positioned(
+                right: 12,
+                top: 120,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black54,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    textStyle: ts(11, weight: bold),
+                  ),
+                  onPressed: _editProfile,
+                  icon: const Icon(LucideIcons.camera, size: 14),
+                  label: const Text('কভার পরিবর্তন করুন'),
+                ),
+              ),
+            Positioned(
+              left: 16,
+              bottom: 0,
+              child: Container(
+                decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 4)),
+                child: AppAvatar(avatar, size: 100, ring: false),
+              ),
+            ),
+          ]),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Flexible(child: Text(name, style: ts(20, weight: FontWeight.w800, color: AppColors.maroon))),
+              const SizedBox(width: 6),
+              const Icon(LucideIcons.shieldCheck, size: 18, color: AppColors.gold),
+            ]),
+            const SizedBox(height: 4),
+            Row(children: [
+              const Icon(LucideIcons.mapPin, size: 13, color: AppColors.grey500),
+              const SizedBox(width: 4),
+              Expanded(child: Text(location, style: ts(12, color: AppColors.grey600))),
+            ]),
+            Text(isMe ? '${toBnDigits(d.friends.where((f) => f.friendshipStatus == 'friends').length)} জন ফ্রেন্ড' : '${toBnDigits(friend!.mutualFriendsCount + 2)} জন ফ্রেন্ড',
+                style: ts(12, weight: semi, color: AppColors.olive)),
+            const SizedBox(height: 12),
+            if (isMe)
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () => _editProfile(),
+                  icon: const Icon(LucideIcons.pencil, size: 15),
+                  label: const Text('প্রোফাইল এডিট করুন'),
+                ),
+              )
+            else
+              _friendActions(friend!),
+          ]),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.sand))),
+          child: Row(children: [
+            _tabBtn('posts', 'পোস্ট (${toBnDigits(posts.length)})'),
+            _tabBtn('about', 'পরিচিতি'),
+            _tabBtn('photos', 'ছবি (${toBnDigits(photos.length)})'),
+          ]),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: switch (_tab) {
+            'about' => _about(bio, location),
+            'photos' => _photos(photos),
+            _ => Column(children: [
+                if (isMe) _composer(me.avatar),
+                if (posts.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Text('এই টাইমলাইনে এখনো কোনো পোস্ট নেই।', style: ts(12.5, color: AppColors.grey500)),
+                  ),
+                for (final p in posts) PostCard(key: ValueKey(p.id), post: p),
+              ]),
+          },
+        ),
+      ]),
+    );
+  }
+
+  Widget _friendActions(FriendUser f) {
+    // Friend not in the synced list yet → add it with the new status (web does the same).
+    void setStatus(String status) {
+      final list = ref.read(dataProvider).friends;
+      final exists = list.any((x) => x.id == f.id || x.name == f.name);
+      ref.read(appDataProvider.notifier).setFriends(exists
+          ? [for (final x in list) (x.id == f.id || x.name == f.name) ? x.withStatus(status) : x]
+          : [...list, f.withStatus(status)]);
+    }
+
+    if (f.friendshipStatus == 'friends' || f.friendshipStatus == 'request_received') {
+      return Align(alignment: Alignment.centerLeft, child: FriendshipButtons(friend: f));
+    }
+    if (f.friendshipStatus == 'request_sent') {
+      return OutlinedButton(onPressed: () => setStatus('none'), child: const Text('রিকোয়েস্ট পাঠানো হয়েছে (বাতিল)'));
+    }
+    return ElevatedButton.icon(
+      onPressed: () => setStatus('request_sent'),
+      icon: const Icon(LucideIcons.userPlus, size: 15),
+      label: const Text('ফ্রেন্ড রিকোয়েস্ট পাঠান'),
+    );
+  }
+
+  Widget _tabBtn(String id, String label) => Expanded(
+        child: InkWell(
+          onTap: () => setState(() => _tab = id),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: _tab == id ? AppColors.maroon : Colors.transparent, width: 3)),
+            ),
+            alignment: Alignment.center,
+            child: Text(label, style: ts(12.5, weight: bold, color: _tab == id ? AppColors.maroon : AppColors.grey500)),
+          ),
+        ),
+      );
+
+  Widget _composer(String avatar) => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: AppCard(
+          padding: const EdgeInsets.all(12),
+          onTap: () => showPostComposer(context, fixedTopic: 'মায়ের গল্প'),
+          child: Row(children: [
+            AppAvatar(avatar, size: 36),
+            const SizedBox(width: 10),
+            Expanded(child: Text('আজ আপনার মনে কী চলছে, আপু?', style: ts(12.5, color: AppColors.grey500))),
+            const Icon(LucideIcons.image, size: 18, color: AppColors.olive),
+          ]),
+        ),
+      );
+
+  Widget _about(String bio, String location) => AppCard(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('মায়ের পরিচিত ও বিবরণী', style: ts(14, weight: bold, color: AppColors.maroon)),
+          const SizedBox(height: 12),
+          Text('জীবনী / বায়ো', style: ts(11, weight: bold, color: AppColors.grey500)),
+          Text(bio, style: ts(13, height: 1.5)),
+          const SizedBox(height: 10),
+          Text('এলাকা', style: ts(11, weight: bold, color: AppColors.grey500)),
+          Text(location, style: ts(13)),
+          const SizedBox(height: 14),
+          const InfoBox(
+            'গোপনীয়তা নীতি অনুযায়ী শিশুর জন্মতারিখ, এলার্জি তথ্য, অর্ডার হিস্ট্রি এবং ডাক্তার কনভার্সেশন টাইমলাইনে প্রদর্শিত হয় না।',
+            icon: LucideIcons.shieldAlert,
+            bg: AppColors.blue50,
+            fg: AppColors.blue600,
+          ),
+        ]),
+      );
+
+  Widget _photos(List<String> photos) {
+    if (photos.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(24),
+        child: Text('এই টাইমলাইনে কোনো ছবি নেই।', style: ts(12.5, color: AppColors.grey500)),
+      );
+    }
+    return GridView.count(
+      crossAxisCount: 3,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: 6,
+      crossAxisSpacing: 6,
+      children: [
+        for (final url in photos)
+          GestureDetector(
+            onTap: () => showDialog<void>(
+              context: context,
+              builder: (ctx) => GestureDetector(
+                onTap: () => Navigator.pop(ctx),
+                child: InteractiveViewer(child: Center(child: NetImage(url, fit: BoxFit.contain))),
+              ),
+            ),
+            child: NetImage(url, radius: 8),
+          ),
+      ],
+    );
+  }
+
+  Future<void> _editProfile() =>
+      showAppSheet<void>(context, title: 'প্রোফাইল এডিট করুন', builder: (_) => const _EditProfile());
+}
+
+/// Edit profile → `PATCH /me` (debounced via setUser).
+class _EditProfile extends ConsumerStatefulWidget {
+  const _EditProfile();
+
+  @override
+  ConsumerState<_EditProfile> createState() => _EditProfileState();
+}
+
+class _EditProfileState extends ConsumerState<_EditProfile> {
+  late final user = ref.read(dataProvider).user;
+  late final _name = TextEditingController(text: user.name);
+  late final _bio = TextEditingController(text: user.bio ?? '');
+  late String _avatar = user.avatar;
+  late String _cover = user.coverPhoto?.isNotEmpty ?? false ? user.coverPhoto! : _defaultCover;
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _bio.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pick(bool avatar) async {
+    try {
+      final url = await pickImageAsDataUrl(context, maxSide: avatar ? 500 : 1280);
+      if (url != null) setState(() => avatar ? _avatar = url : _cover = url);
+    } catch (e) {
+      if (mounted) toastError(context, e);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Stack(clipBehavior: Clip.none, children: [
+        GestureDetector(onTap: () => _pick(false), child: NetImage(_cover, height: 120, width: double.infinity, radius: 12)),
+        Positioned(
+          right: 8,
+          top: 8,
+          child: IconButton.filled(
+            style: IconButton.styleFrom(backgroundColor: Colors.black54),
+            onPressed: () => _pick(false),
+            icon: const Icon(LucideIcons.camera, size: 16, color: Colors.white),
+          ),
+        ),
+        Positioned(
+          left: 12,
+          bottom: -30,
+          child: GestureDetector(
+            onTap: () => _pick(true),
+            child: Stack(children: [
+              Container(
+                decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 3)),
+                child: AppAvatar(_avatar, size: 72, ring: false),
+              ),
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: const BoxDecoration(color: AppColors.maroon, shape: BoxShape.circle),
+                  child: const Icon(LucideIcons.camera, size: 12, color: Colors.white),
+                ),
+              ),
+            ]),
+          ),
+        ),
+      ]),
+      const SizedBox(height: 40),
+      const FieldLabel('মায়ের নাম'),
+      TextField(controller: _name, maxLength: 80, decoration: const InputDecoration(counterText: '')),
+      const SizedBox(height: 8),
+      const FieldLabel('সংক্ষিপ্ত বায়ো'),
+      TextField(controller: _bio, minLines: 2, maxLines: 4, maxLength: 500, decoration: const InputDecoration(counterText: '')),
+      const SizedBox(height: 16),
+      Row(children: [
+        Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('বাতিল'))),
+        const SizedBox(width: 10),
+        Expanded(
+          child: BusyButton(
+            label: 'সংরক্ষণ করুন',
+            onPressed: () async {
+              if (_name.text.trim().isEmpty) {
+                toast(context, 'নাম খালি রাখা যাবে না।');
+                return;
+              }
+              final d = ref.read(dataProvider);
+              final data = ref.read(appDataProvider.notifier);
+              try {
+                // Saved immediately (not debounced): the server also rewrites
+                // the name/avatar copies on posts & comments, so we refresh.
+                final saved = await ref.read(apiProvider).updateProfile(d.user.copyWith(
+                      name: _name.text.trim(),
+                      bio: _bio.text.trim(),
+                      avatar: _avatar,
+                      coverPhoto: _cover,
+                    ));
+                data.setUserFromServer(saved);
+                if (context.mounted) Navigator.pop(context);
+                await data.refreshQuietly();
+              } catch (e) {
+                if (context.mounted) toastError(context, e);
+              }
+            },
+          ),
+        ),
+      ]),
+    ]);
+  }
+}
