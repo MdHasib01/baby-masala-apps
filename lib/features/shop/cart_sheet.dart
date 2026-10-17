@@ -19,7 +19,7 @@ Future<void> showCartSheet(BuildContext context) => showModalBottomSheet<void>(
       isScrollControlled: true,
       useSafeArea: true,
       showDragHandle: false,
-      builder: (_) => const _CartSheet(),
+      builder: (_) => const SheetDragToClose(child: _CartSheet()),
     );
 
 class _CartSheet extends ConsumerWidget {

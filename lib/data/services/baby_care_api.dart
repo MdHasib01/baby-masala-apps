@@ -2,6 +2,7 @@ import '../../core/api/api_client.dart';
 import '../../core/utils/json.dart';
 import '../models/bootstrap.dart';
 import '../models/commerce.dart';
+import '../models/complaint.dart';
 import '../models/community.dart';
 import '../models/contest.dart';
 import '../models/notification_item.dart';
@@ -54,6 +55,14 @@ class BabyCareApi {
 
   Future<void> markAllNotificationsRead() => _c.post('/notifications/read-all');
 
+  // ---------------------------------------------------------- Complaints --
+  Future<List<Complaint>> myComplaints() async => jList(await _c.get('/complaints'), 'complaints', Complaint.fromJson);
+
+  Future<Complaint> createComplaint({required String category, required String details, String? attachmentUrl}) async =>
+      Complaint.fromJson(jMap(
+          await _c.post('/complaints', compact({'category': category, 'details': details, 'attachmentUrl': attachmentUrl})),
+          'complaint'));
+
   // ---------------------------------------------------------- Community --
   Future<({List<Post> posts, String? nextCursor})> listPosts({int? limit, String? before, String? topic}) async {
     final r = await _c.get('/posts', query: {'limit': limit, 'before': before, 'topic': topic});
@@ -79,8 +88,9 @@ class BabyCareApi {
 
   Future<void> deletePost(String postId) => _c.delete('/posts/${seg(postId)}');
 
-  Future<({Post post, RewardTransaction? rewardTx})> reactToPost(String postId) async {
-    final r = await _c.post('/posts/${seg(postId)}/react');
+  /// [type]: like | love | haha | care. Same type again removes the reaction.
+  Future<({Post post, RewardTransaction? rewardTx})> reactToPost(String postId, {String type = 'like'}) async {
+    final r = await _c.post('/posts/${seg(postId)}/react', {'type': type});
     return (post: Post.fromJson(jMap(r, 'post')), rewardTx: _tx(r));
   }
 
@@ -95,8 +105,10 @@ class BabyCareApi {
   Future<List<Comment>> getComments(String postId) async =>
       jList(await _c.get('/posts/${seg(postId)}/comments'), 'comments', Comment.fromJson);
 
-  Future<({Comment comment, Post post, RewardTransaction? rewardTx})> addComment(String postId, String content) async {
-    final r = await _c.post('/posts/${seg(postId)}/comments', {'content': content});
+  /// [parentId] makes it a reply (the server attaches replies to the top-level comment).
+  Future<({Comment comment, Post post, RewardTransaction? rewardTx})> addComment(String postId, String content,
+      {String? parentId}) async {
+    final r = await _c.post('/posts/${seg(postId)}/comments', compact({'content': content, 'parentId': parentId}));
     return (comment: Comment.fromJson(jMap(r, 'comment')), post: Post.fromJson(jMap(r, 'post')), rewardTx: _tx(r));
   }
 
@@ -181,12 +193,19 @@ class BabyCareApi {
 }
 
 class AdminOverview {
-  const AdminOverview({required this.posts, required this.orders, required this.products, required this.submissions});
+  const AdminOverview({
+    required this.posts,
+    required this.orders,
+    required this.products,
+    required this.submissions,
+    this.complaints = const [],
+  });
 
   final List<({Post post, int reportsCount})> posts;
   final List<Order> orders;
   final List<Product> products;
   final List<ContestSubmission> submissions;
+  final List<Complaint> complaints;
 }
 
 class _AdminApi {
@@ -200,8 +219,12 @@ class _AdminApi {
       orders: jList(r, 'orders', Order.fromJson),
       products: jList(r, 'products', Product.fromJson),
       submissions: jList(r, 'submissions', ContestSubmission.fromJson),
+      complaints: jList(r, 'complaints', Complaint.fromJson),
     );
   }
+
+  Future<Complaint> updateComplaint(String id, {String? status, String? adminReply}) async => Complaint.fromJson(
+      jMap(await _c.patch('/admin/complaints/${seg(id)}', compact({'status': status, 'adminReply': adminReply})), 'complaint'));
 
   Future<Post> setPostStatus(String postId, String status) async =>
       Post.fromJson(jMap(await _c.patch('/admin/posts/${seg(postId)}', {'status': status}), 'post'));

@@ -20,27 +20,12 @@ class PostActions {
 
   AppDataController get _data => ref.read(appDataProvider.notifier);
 
-  Future<void> react(Post original) async {
-    // Optimistic toggle; the server's answer (and any points) replaces it.
-    _data.upsertPost(Post(
-      id: original.id,
-      authorId: original.authorId,
-      authorName: original.authorName,
-      authorAvatar: original.authorAvatar,
-      isVerifiedBuyer: original.isVerifiedBuyer,
-      topic: original.topic,
-      content: original.content,
-      mediaUrl: original.mediaUrl,
-      mediaType: original.mediaType,
-      createdAt: original.createdAt,
-      likes: original.likedByMe ? (original.likes - 1).clamp(0, 1 << 30) : original.likes + 1,
-      likedByMe: !original.likedByMe,
-      savedByMe: original.savedByMe,
-      commentsCount: original.commentsCount,
-      status: original.status,
-    ));
+  /// Facebook-style: same [type] again removes it, another type switches.
+  Future<void> react(Post original, [String type = 'like']) async {
+    // Optimistic; the server's answer (and any points) replaces it.
+    _data.upsertPost(original.withReaction(type));
     try {
-      final r = await ref.read(apiProvider).reactToPost(original.id);
+      final r = await ref.read(apiProvider).reactToPost(original.id, type: type);
       _data.upsertPost(r.post);
       _data.addRewardTx(r.rewardTx);
     } catch (e) {

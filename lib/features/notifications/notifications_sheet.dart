@@ -13,7 +13,7 @@ Future<void> showNotificationsSheet(BuildContext context) => showModalBottomShee
       isScrollControlled: true,
       useSafeArea: true,
       showDragHandle: false,
-      builder: (_) => const _NotificationsSheet(),
+      builder: (_) => const SheetDragToClose(child: _NotificationsSheet()),
     );
 
 class _NotificationsSheet extends ConsumerWidget {
@@ -26,6 +26,7 @@ class _NotificationsSheet extends ConsumerWidget {
         'friend' => LucideIcons.userPlus,
         'message' => LucideIcons.messageCircle,
         'doctor' => LucideIcons.stethoscope,
+        'complaint' => LucideIcons.messageSquareWarning,
         _ => LucideIcons.lightbulb,
       };
 

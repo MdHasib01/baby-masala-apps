@@ -10,6 +10,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/bn_digits.dart';
 import '../../data/models/social.dart';
 import '../../shared/widgets/common.dart';
+import '../../shared/widgets/emoji_picker.dart';
 import '../../shared/widgets/net_image.dart';
 import '../../state/app_data_controller.dart';
 import '../timeline/user_timeline_screen.dart';
@@ -258,8 +259,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         SafeArea(
           top: false,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+            padding: const EdgeInsets.fromLTRB(4, 8, 8, 8),
             child: Row(children: [
+              EmojiButton(controller: _input),
               Expanded(
                 child: TextField(
                   controller: _input,

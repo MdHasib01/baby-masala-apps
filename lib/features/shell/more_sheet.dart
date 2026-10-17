@@ -27,7 +27,7 @@ Future<void> showMoreSheet(BuildContext context) => showModalBottomSheet<void>(
       isScrollControlled: true,
       useSafeArea: true,
       showDragHandle: false,
-      builder: (_) => _MoreSheet(rootContext: context),
+      builder: (_) => SheetDragToClose(child: _MoreSheet(rootContext: context)),
     );
 
 class _MoreSheet extends ConsumerStatefulWidget {
@@ -112,6 +112,7 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
       _MoreItem(LucideIcons.package, 'আমার অর্ডার', AppColors.olive, () => _then(showOrdersSheet)),
       _MoreItem(LucideIcons.gift, 'পয়েন্ট ও গিফট', AppColors.gold, () => _tab(HomeTab.rewards)),
       _MoreItem(LucideIcons.mapPin, 'ঠিকানা', AppColors.green700, () => _go(Routes.addresses)),
+      _MoreItem(LucideIcons.messageSquareWarning, 'অভিযোগ ও সাপোর্ট', AppColors.red600, () => _go(Routes.complaints)),
       _MoreItem(LucideIcons.settings, 'সেটিংস ও গোপনীয়তা', AppColors.grey600, () => _go(Routes.settings)),
       if (user.isAdmin) _MoreItem(LucideIcons.shield, 'অ্যাডমিন', AppColors.red600, () => _go(Routes.admin)),
     ];

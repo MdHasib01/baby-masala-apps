@@ -59,7 +59,7 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
         isScrollControlled: true,
         useSafeArea: true,
         showDragHandle: false,
-        builder: (_) => _RecipeDetail(recipeId: id, onToggleSave: _toggleSave),
+        builder: (_) => SheetDragToClose(child: _RecipeDetail(recipeId: id, onToggleSave: _toggleSave)),
       );
 
   @override

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../core/router/app_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../shared/widgets/common.dart';
 import '../../state/app_data_controller.dart';
@@ -43,16 +45,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('সেটিংস ও প্রাইভেসি')),
       body: ListView(padding: const EdgeInsets.all(16), children: [
-        AppCard(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Column(children: [
-            _header('নোটিফিকেশন পছন্দ', LucideIcons.bell),
-            _switch('পুশ নোটিফিকেশন ও অ্যালার্ট', _push, (v) => setState(() => _push = v)),
-            _switch('কমিউনিটি কমেন্ট ও কনটেস্ট আপডেট', _community, (v) => setState(() => _community = v)),
-            _switch('এসএমএস আপডেট', _sms, (v) => setState(() => _sms = v)),
-            _switch('ইমেইল আপডেট', _email, (v) => setState(() => _email = v)),
-          ]),
-        ),
+        // Members always get every notification; only admins can filter theirs.
+        if (_user.isAdmin)
+          AppCard(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Column(children: [
+              _header('নোটিফিকেশন পছন্দ (অ্যাডমিন)', LucideIcons.bell),
+              _switch('পুশ নোটিফিকেশন ও অ্যালার্ট', _push, (v) => setState(() => _push = v)),
+              _switch('কমিউনিটি কমেন্ট ও কনটেস্ট আপডেট', _community, (v) => setState(() => _community = v)),
+              _switch('এসএমএস আপডেট', _sms, (v) => setState(() => _sms = v)),
+              _switch('ইমেইল আপডেট', _email, (v) => setState(() => _email = v)),
+            ]),
+          )
+        else
+          const InfoBox(
+            'সব গুরুত্বপূর্ণ আপডেট যেন মিস না হয়, তাই সব নোটিফিকেশন চালু থাকে।',
+            icon: LucideIcons.bellRing,
+            bg: AppColors.blue50,
+            fg: AppColors.blue600,
+          ),
         const SizedBox(height: 12),
         AppCard(
           padding: const EdgeInsets.symmetric(vertical: 6),
@@ -67,6 +78,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           const SizedBox(height: 12),
           const InfoBox('সেটিংস সফলভাবে সংরক্ষিত হয়েছে!', icon: LucideIcons.check, bg: AppColors.green50, fg: AppColors.green700),
         ],
+        const SizedBox(height: 12),
+        AppCard(
+          padding: EdgeInsets.zero,
+          onTap: () => context.push(Routes.complaints),
+          child: ListTile(
+            leading: const Icon(LucideIcons.messageSquareWarning, color: AppColors.red600),
+            title: Text('অভিযোগ ও সাপোর্ট', style: ts(13, weight: semi)),
+            subtitle: Text('কোনো সমস্যা হলে আমাদের জানান', style: ts(11, color: AppColors.grey500)),
+            trailing: const Icon(LucideIcons.chevronRight, size: 18),
+          ),
+        ),
         const SizedBox(height: 16),
         BusyButton(label: 'পরিবর্তন সেভ করুন', onPressed: () async => _save()),
         const SizedBox(height: 10),

@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
 
-/// Light-only theme (the web app has no dark mode). Font: Hind Siliguri.
+/// Text style in the app font. The app uses the device's system font, like
+/// the Facebook app: Roboto for Latin and Android's built-in Noto Sans Bengali
+/// for Bengali (picked automatically as fallback). No bundled font.
+TextStyle _font({double? fontSize, FontWeight? fontWeight, Color? color}) =>
+    TextStyle(fontSize: fontSize, fontWeight: fontWeight, color: color);
+
+/// Light-only theme (the web app has no dark mode). Font: system (Facebook-style).
 ///
 /// Modern mobile look: light app bars with maroon titles, filled rounded
 /// inputs, 14–20 px radii, Material 3 bottom navigation with a sand pill.
@@ -23,13 +28,13 @@ ThemeData buildAppTheme() {
     scaffoldBackgroundColor: AppColors.cream,
   );
 
-  final text = GoogleFonts.hindSiliguriTextTheme(base.textTheme).apply(
+  final text = base.textTheme.apply(
     bodyColor: AppColors.ink,
     displayColor: AppColors.ink,
   );
 
   final radius = BorderRadius.circular(14);
-  final hind = GoogleFonts.hindSiliguri;
+  const hind = _font;
   return base.copyWith(
     textTheme: text,
     appBarTheme: AppBarTheme(

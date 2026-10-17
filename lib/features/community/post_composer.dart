@@ -6,7 +6,9 @@ import '../../core/api/api_exception.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/image_data_url.dart';
 import '../../data/models/community.dart';
+import '../../shared/widgets/celebration.dart';
 import '../../shared/widgets/common.dart';
+import '../../shared/widgets/emoji_picker.dart';
 import '../../shared/widgets/net_image.dart';
 import '../../state/app_data_controller.dart';
 import '../../state/providers.dart';
@@ -23,7 +25,8 @@ Future<void> showPostComposer(BuildContext context, {Post? editing, String? fixe
       isDismissible: false,
       enableDrag: false,
       showDragHandle: false,
-      builder: (_) => _PostComposer(editing: editing, fixedTopic: fixedTopic, pickImageFirst: pickImageFirst),
+      builder: (_) => SheetDragToClose(
+          child: _PostComposer(editing: editing, fixedTopic: fixedTopic, pickImageFirst: pickImageFirst)),
     );
 
 class _PostComposer extends ConsumerStatefulWidget {
@@ -94,6 +97,7 @@ class _PostComposerState extends ConsumerState<_PostComposer> {
         final r = await api.createPost(content: _content.text, topic: _topic, mediaUrl: _media);
         data.upsertPost(r.post, prepend: true);
         data.addRewardTx(r.rewardTx);
+        if (mounted) showCelebration(context);
       }
       setState(() => _success = true);
       await Future<void>.delayed(const Duration(milliseconds: 900));
@@ -131,6 +135,7 @@ class _PostComposerState extends ConsumerState<_PostComposer> {
               maxLength: 5000,
               decoration: const InputDecoration(hintText: 'কী শেয়ার করতে চান মা?', counterText: ''),
             ),
+            Align(alignment: Alignment.centerRight, child: EmojiButton(controller: _content, size: 22)),
             const SizedBox(height: 10),
             const FieldLabel('ছবি (ঐচ্ছিক)'),
             if (_media != null && _media!.isNotEmpty)

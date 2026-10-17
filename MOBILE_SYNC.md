@@ -57,7 +57,7 @@ Checks:
 
 **Build notes**
 - `android/gradle.properties` has `kotlin.incremental=false`. Without it, Kotlin compilation of plugins fails with "Could not close incremental caches", because the project is on `D:` and the pub cache is on `C:`.
-- `google_fonts` is pinned to `^6.3.3`. Version 9 depends on the separate `material_ui` package, whose `TextTheme` is a different class from the one in Flutter 3.47's material library.
+- The app no longer uses `google_fonts`; it uses the system font (see §2). If you add it back, note that version 9 depends on the separate `material_ui` package, which doesn't work with Flutter 3.47, so use `^6.3.3`.
 - **Impeller rendering rules.** The dev emulator (Android 17, x86_64) shows these Impeller bugs: widgets disappear or maroon streaks appear. Keep the UI working there:
   - Use no blurred `BoxShadow`; use borders or tonal fills instead.
   - Use no fade or opacity animations: no `AnimatedSwitcher`, and keep `CachedNetworkImage` fade at zero.
@@ -81,7 +81,7 @@ Checks:
 | Debounced saves (`useServerSync`, 600 ms) | `App.tsx` | `AppDataController._set` / `_save` (600 ms, same keys) |
 | Navigation (`currentScreen`, `activeTab`, `activeTimelineTarget`) | `App.tsx` state | `core/router/app_router.dart` (go_router) + `features/shell/home_tab.dart` |
 | Theme colours | Tailwind hex values | `core/theme/app_colors.dart` |
-| Font | Hind Siliguri (Google Fonts) | `google_fonts` → `hindSiliguriTextTheme` |
+| Font | Hind Siliguri (Google Fonts) | **System font, like the Facebook app**: Roboto for Latin, Android's Noto Sans Bengali for Bengali (`core/theme/app_theme.dart`, `_font`). Nothing is bundled. |
 | Icons | `lucide-react` | `lucide_icons_flutter` |
 
 **State management:** Riverpod 3 · **Routing:** go_router · **HTTP:** dio · **Target:** Android only.
@@ -103,9 +103,9 @@ Checks:
 | 7 | Header + 5 top tabs | `components/Header.tsx` | `features/shell/home_shell.dart` | – | 🟡 **bottom navigation** with a raised centre Home button; Friends moved under "আরও" (§6 M20) |
 | 8 | Profile drawer | `components/profile/ProfileDrawer.tsx` | `features/shell/more_sheet.dart` ("আরও" sheet) | `POST /auth/activate-membership` | 🟡 replaced by the More sheet; adds Address, Settings, Orders, Notifications, Admin; coupon calls the API (§6) |
 | 15b | Friends screen | `components/social/FriendsScreen.tsx` (a top tab on web) | `features/friends/friends_tab.dart` (`FriendsScreen`, route `/friends`) | `PUT /sync/friends` | 🟡 full screen opened from "আরও" |
-| 9 | Community feed | `tabs/CommunityTab.tsx` | `features/community/community_tab.dart`, `post_card.dart` | `/posts*` | 🟡 adds pull-to-refresh and infinite scroll (§6) |
+| 9 | Community feed | `tabs/CommunityTab.tsx` | `features/community/community_tab.dart`, `post_card.dart` | `/posts*`, `POST /posts/:id/react {type}` | 🟡 adds pull-to-refresh and infinite scroll (§6). Reactions like/love/haha/care: web = hover, touch = long-press (`components/social/Reactions.tsx` ↔ `shared/widgets/reactions.dart`) |
 | 10 | Create / edit post | CommunityTab modal | `features/community/post_composer.dart` | `POST /posts`, `PATCH /posts/:id` | 🟡 image picker instead of URL field; label says "+৫" |
-| 11 | Comments thread | CommunityTab modal | `features/community/comments_sheet.dart` | `GET/POST /posts/:id/comments` | 🟡 re-fetches comments when opened |
+| 11 | Comments thread | CommunityTab modal | `features/community/comments_sheet.dart` | `GET/POST /posts/:id/comments` (`parentId` for replies) | ✅ Facebook-style replies (one level deep), emoji picker, re-fetches when opened |
 | 12 | Share | CommunityTab modal | `features/community/post_actions.dart` | – | 🟡 Android share sheet replaces the fake "share to feed" |
 | 13 | My Baby (main, food chart, tips, tip detail) | `tabs/MyBabyTab.tsx` | `features/baby/my_baby_tab.dart` | `PUT /sync/children` | ✅ |
 | 14 | Add / edit child | MyBabyTab modal | `features/baby/child_form_sheet.dart` | `PUT /sync/children` | 🟡 date picker and photo picker |
@@ -124,6 +124,9 @@ Checks:
 | 27 | Admin console | `components/AdminModal.tsx` | `features/admin/admin_screen.dart` | `/admin/*` | 🟡 adds post status and entry moderation; real points rules |
 | 28 | Settings & privacy | `components/profile/SettingsModal.tsx` (not reachable on web) | `features/profile/settings_screen.dart` | `PATCH /me` | 🟡 reachable on mobile; adds SMS, email and share-profile toggles |
 | 29 | Address manager | `components/profile/AddressManagerModal.tsx` (not reachable on web) | `features/profile/address_manager_screen.dart` | `PATCH /me` | 🟡 reachable on mobile; adds edit |
+| 30 | Complaints (user) | `components/profile/ComplaintsModal.tsx` (drawer) | `features/complaints/complaints_screen.dart` (আরও, Settings) | `GET/POST /complaints` | ✅ |
+| 31 | Complaints (admin) | `AdminModal.tsx` tab | `features/admin/admin_screen.dart` tab | `PATCH /admin/complaints/:id` | ✅ user gets a notification |
+| 32 | Profile photo / cover change | `UserTimelineScreen.tsx` + `ImageCropModal.tsx` | `user_timeline_screen.dart` + `shared/widgets/image_crop_screen.dart` | `PATCH /me` | ✅ pencil icon → view / upload → zoom & position crop |
 
 The unused web components (`BottomNav.tsx`, `TopNavTabs.tsx`, `OnboardingModal.tsx`, `ProfileModal.tsx`, `PublicProfileModal.tsx`) are intentionally not ported.
 
@@ -282,7 +285,8 @@ Add a dated entry for **every** mobile change that affects screens, API usage, m
 
 | Date | Change | Files | Web follow-up? |
 |---|---|---|---|
-| 2026-10-18 | Removed the "রেসিপি ও পুষ্টি টিপস" banner from the top of the Home feed. Recipes are still reachable from আরও → রেসিপি ও টিপস and from My Baby. | `community_tab.dart` | Optional (the web `CommunityTab.tsx` still shows the banner) |
+| 2026-10-18 | The font changed from Hind Siliguri to the system font, Facebook-style (Roboto plus Noto Sans Bengali). The `google_fonts` dependency was removed. | `app_theme.dart`, `pubspec.yaml` | ✅ Done on web 2026-10-18 (`frontend/src/index.css` system font stack; Google Fonts link removed from `index.html`) |
+| 2026-10-18 | Removed the "রেসিপি ও পুষ্টি টিপস" banner from the top of the Home feed. Recipes are still reachable from আরও → রেসিপি ও টিপস and from My Baby. | `community_tab.dart` | ✅ Done on web 2026-10-18 (`CommunityTab.tsx` banner and `onOpenRecipes` prop removed; recipes still in the drawer) |
 | 2026-10-17 | Bottom bar: the Home circle is now solid button maroon (no gradient), with a gold ring when active. The white bar rises in a smooth rounded bump around it (`_BarShapePainter`). Launcher icon set in `mipmap-*` (`ic_launcher`, `ic_launcher_round`). | `home_shell.dart`, `android/app/src/main/res/mipmap-*`, `AndroidManifest.xml` | No |
 | 2026-10-17 | Bottom navigation with a centre Home circle, "আরও" More sheet (replaces the drawer), Friends as its own route, modern theme pass (§6 M20–M21). Impeller-safe: no blurred shadows, no fade/opacity animations (`AnimatedSwitcher`, image fade-in), no zoom page transitions, solid background behind the top bar. | `features/shell/*`, `friends_tab.dart`, `app_theme.dart`, `common.dart`, `net_image.dart`, `notifications_sheet.dart`, `messenger_screen.dart`, `admin_screen.dart`, `app_router.dart` | No (mobile-only UX) |
 | 2026-10-17 | Welcome logo: replaced the blurred `BoxShadow` with a border. On the Android emulator's Impeller backend the blur made the heart, badge and wordmark disappear. `ApiClient` now `debugPrint`s the underlying `DioException` on network errors. | `welcome_screen.dart`, `api_client.dart` | No |

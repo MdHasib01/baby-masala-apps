@@ -6,11 +6,13 @@ import '../../core/api/api_exception.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/bn_digits.dart';
 import '../../data/models/commerce.dart';
+import '../../data/models/complaint.dart';
 import '../../data/services/baby_care_api.dart';
 import '../../shared/widgets/common.dart';
 import '../../shared/widgets/net_image.dart';
 import '../../state/app_data_controller.dart';
 import '../../state/providers.dart';
+import '../complaints/complaints_screen.dart';
 
 /// Admin console — port of components/AdminModal.tsx (admins only).
 ///
@@ -62,6 +64,35 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
     }
   }
 
+  Future<void> _reply(Complaint c) async {
+    final text = TextEditingController(text: c.adminReply);
+    final reply = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('অভিযোগের উত্তর'),
+        content: TextField(
+          controller: text,
+          autofocus: true,
+          minLines: 3,
+          maxLines: 6,
+          maxLength: 1000,
+          decoration: const InputDecoration(hintText: 'ইউজার নোটিফিকেশনে এই উত্তর দেখবেন'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('বাতিল')),
+          ElevatedButton(onPressed: () => Navigator.pop(ctx, text.text.trim()), child: const Text('পাঠান')),
+        ],
+      ),
+    );
+    text.dispose();
+    if (reply == null) return;
+    // Replying moves a fresh complaint along to "in progress".
+    await _run(() async => ref
+        .read(apiProvider)
+        .admin
+        .updateComplaint(c.id, adminReply: reply, status: c.status == 'open' && reply.isNotEmpty ? 'in_progress' : null));
+  }
+
   @override
   Widget build(BuildContext context) {
     final d = _data;
@@ -69,7 +100,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
     final admin = ref.read(apiProvider).admin;
 
     return DefaultTabController(
-      length: 5,
+      length: 6,
       child: Scaffold(
         appBar: AppBar(
           title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -81,6 +112,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
             tabAlignment: TabAlignment.start,
             tabs: [
               Tab(text: 'পোস্ট ও রিপোর্ট (${toBnDigits(d?.posts.length ?? 0)})'),
+              Tab(text: 'অভিযোগ (${toBnDigits(d?.complaints.where((c) => c.status != 'resolved').length ?? 0)})'),
               Tab(text: 'অর্ডার ও ডেলিভারি (${toBnDigits(d?.orders.length ?? 0)})'),
               Tab(text: 'প্রোডাক্ট ও স্টক (${toBnDigits(d?.products.length ?? 0)})'),
               Tab(text: 'কনটেস্ট ও সাবমিশন (${toBnDigits(d?.submissions.length ?? 0)})'),
@@ -139,6 +171,33 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                             ]),
                           ]),
                         ),
+                    ]),
+                    // ---- complaints
+                    _list([
+                      if (d.complaints.isEmpty)
+                        const EmptyState(icon: LucideIcons.inbox, title: 'কোনো অভিযোগ নেই।')
+                      else
+                        for (final c in d.complaints)
+                          ComplaintCard(
+                            c,
+                            showUser: true,
+                            footer: Padding(
+                              padding: const EdgeInsets.only(top: 10),
+                              child: Row(children: [
+                                _statusMenu(
+                                  value: c.status,
+                                  options: complaintStatuses,
+                                  onChanged: (s) => _run(() async => admin.updateComplaint(c.id, status: s)),
+                                ),
+                                const Spacer(),
+                                TextButton.icon(
+                                  onPressed: () => _reply(c),
+                                  icon: const Icon(LucideIcons.reply, size: 15),
+                                  label: Text(c.adminReply.isEmpty ? 'উত্তর দিন' : 'উত্তর এডিট'),
+                                ),
+                              ]),
+                            ),
+                          ),
                     ]),
                     // ---- orders
                     _list([

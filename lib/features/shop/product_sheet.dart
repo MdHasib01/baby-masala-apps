@@ -17,7 +17,7 @@ Future<void> showProductSheet(BuildContext context, Product p) => showModalBotto
       isScrollControlled: true,
       useSafeArea: true,
       showDragHandle: false,
-      builder: (_) => _ProductSheet(product: p),
+      builder: (_) => SheetDragToClose(child: _ProductSheet(product: p)),
     );
 
 class _ProductSheet extends ConsumerStatefulWidget {

@@ -25,3 +25,12 @@ String toAsciiDigits(String s) {
 
 /// "৳1,250" style money label with Bengali digits: ৳১২৫০
 String taka(num amount) => '৳${toBnDigits(amount % 1 == 0 ? amount.toInt() : amount.toStringAsFixed(2))}';
+
+const _bnMonths = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+
+/// "2001-05-09" → "৯ মে ২০০১". Returns the input unchanged if it isn't a date.
+String formatBnDate(String ymd) {
+  final d = DateTime.tryParse(ymd);
+  if (d == null) return ymd;
+  return '${toBnDigits(d.day)} ${_bnMonths[d.month - 1]} ${toBnDigits(d.year)}';
+}

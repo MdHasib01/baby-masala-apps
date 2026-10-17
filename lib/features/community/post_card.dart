@@ -7,6 +7,7 @@ import '../../core/utils/bn_digits.dart';
 import '../../data/models/community.dart';
 import '../../shared/widgets/common.dart';
 import '../../shared/widgets/net_image.dart';
+import '../../shared/widgets/reactions.dart';
 import '../../state/app_data_controller.dart';
 import 'comments_sheet.dart';
 import 'post_actions.dart';
@@ -129,10 +130,12 @@ class _PostCardState extends ConsumerState<PostCard> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
           child: Row(children: [
-            const Text('👍', style: TextStyle(fontSize: 12)),
-            const SizedBox(width: 4),
-            Expanded(child: Text('${toBnDigits(post.likes)} জন মা পছন্দ করেছেন', style: ts(11, color: AppColors.grey500))),
-            Text('${toBnDigits(post.commentsCount)} কমেন্ট', style: ts(11, color: AppColors.grey500)),
+            ReactionSummary(types: post.topReactions, total: post.likes),
+            const Spacer(),
+            GestureDetector(
+              onTap: () => showCommentsSheet(context, post, onOpenAuthor: widget.onOpenAuthor),
+              child: Text('${toBnDigits(post.commentsCount)} কমেন্ট', style: ts(11, color: AppColors.grey500)),
+            ),
           ]),
         ),
         const Divider(indent: 14, endIndent: 14),
@@ -140,13 +143,7 @@ class _PostCardState extends ConsumerState<PostCard> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           child: Row(children: [
-            _action(
-              icon: LucideIcons.thumbsUp,
-              label: post.likedByMe ? 'পছন্দ হয়েছে' : 'রিঅ্যাক্ট',
-              active: post.likedByMe,
-              onTap: () => actions.react(post),
-              onLongPress: () => _reactionPicker(post, actions),
-            ),
+            Expanded(child: ReactionButton(current: post.myReaction, onReact: (t) => actions.react(post, t))),
             _action(icon: LucideIcons.messageCircle, label: 'কমেন্ট', onTap: () => showCommentsSheet(context, post, onOpenAuthor: widget.onOpenAuthor)),
             _action(icon: LucideIcons.share2, label: 'শেয়ার', onTap: () => actions.share(post)),
           ]),
@@ -223,25 +220,4 @@ class _PostCardState extends ConsumerState<PostCard> {
           ),
         ),
       );
-
-  /// Long-press picker. Like the web, every reaction sends the same toggle
-  /// (the API has no reaction types).
-  Future<void> _reactionPicker(Post post, PostActions actions) async {
-    final picked = await showDialog<String>(
-      context: context,
-      builder: (ctx) => Dialog(
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final e in ['👍', '❤️', '🫂', '😆', '😲'])
-                IconButton(onPressed: () => Navigator.pop(ctx, e), icon: Text(e, style: const TextStyle(fontSize: 28))),
-            ],
-          ),
-        ),
-      ),
-    );
-    if (picked != null && !post.likedByMe) actions.react(post);
-  }
 }

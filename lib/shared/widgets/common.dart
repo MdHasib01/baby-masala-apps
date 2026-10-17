@@ -4,6 +4,9 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/api/api_exception.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/bn_digits.dart';
+import 'sheet_drag.dart';
+
+export 'sheet_drag.dart';
 
 // ---------------------------------------------------------------- Text --
 
@@ -49,12 +52,12 @@ Future<bool> confirmDialog(
 }
 
 Future<void> alertDialog(BuildContext context, String message) => showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        content: Text(message, style: ts(14, weight: semi)),
-        actions: [ElevatedButton(onPressed: () => Navigator.pop(ctx), child: const Text('ঠিক আছে'))],
-      ),
-    );
+  context: context,
+  builder: (ctx) => AlertDialog(
+    content: Text(message, style: ts(14, weight: semi)),
+    actions: [ElevatedButton(onPressed: () => Navigator.pop(ctx), child: const Text('ঠিক আছে'))],
+  ),
+);
 
 // ------------------------------------------------------------- Pieces --
 
@@ -108,14 +111,19 @@ class PillChip extends StatelessWidget {
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-            child: Row(mainAxisSize: MainAxisSize.min, children: [
-              if (icon != null) ...[
-                Icon(icon, size: 13, color: selected ? Colors.white : AppColors.maroon),
-                const SizedBox(width: 5),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null) ...[
+                  Icon(icon, size: 13, color: selected ? Colors.white : AppColors.maroon),
+                  const SizedBox(width: 5),
+                ],
+                Text(
+                  label,
+                  style: ts(12, weight: semi, color: selected ? Colors.white : AppColors.ink.withValues(alpha: 0.8)),
+                ),
               ],
-              Text(label,
-                  style: ts(12, weight: semi, color: selected ? Colors.white : AppColors.ink.withValues(alpha: 0.8))),
-            ]),
+            ),
           ),
         ),
       ),
@@ -129,8 +137,11 @@ class ChipRow extends StatelessWidget {
   final EdgeInsetsGeometry padding;
 
   @override
-  Widget build(BuildContext context) =>
-      SingleChildScrollView(scrollDirection: Axis.horizontal, padding: padding, child: Row(children: children));
+  Widget build(BuildContext context) => SingleChildScrollView(
+    scrollDirection: Axis.horizontal,
+    padding: padding,
+    child: Row(children: children),
+  );
 }
 
 class Tag extends StatelessWidget {
@@ -142,13 +153,19 @@ class Tag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          if (icon != null) ...[Icon(icon, size: 11, color: fg), const SizedBox(width: 3)],
-          Text(text, style: ts(10, weight: bold, color: fg)),
-        ]),
-      );
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+    decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (icon != null) ...[Icon(icon, size: 11, color: fg), const SizedBox(width: 3)],
+        Text(
+          text,
+          style: ts(10, weight: bold, color: fg),
+        ),
+      ],
+    ),
+  );
 }
 
 /// Red count bubble used on header icons and the Shop tab.
@@ -159,22 +176,31 @@ class CountBadge extends StatelessWidget {
   final Color color;
 
   @override
-  Widget build(BuildContext context) => Stack(clipBehavior: Clip.none, children: [
-        child,
-        if (count > 0)
-          Positioned(
-            right: -6,
-            top: -6,
-            child: Container(
-              constraints: const BoxConstraints(minWidth: 17, minHeight: 17),
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              decoration: BoxDecoration(
-                  color: color, borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.white, width: 1.5)),
-              alignment: Alignment.center,
-              child: Text(toBnDigits(count > 99 ? '99+' : count), style: ts(9, weight: bold, color: Colors.white)),
+  Widget build(BuildContext context) => Stack(
+    clipBehavior: Clip.none,
+    children: [
+      child,
+      if (count > 0)
+        Positioned(
+          right: -6,
+          top: -6,
+          child: Container(
+            constraints: const BoxConstraints(minWidth: 17, minHeight: 17),
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.white, width: 1.5),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              toBnDigits(count > 99 ? '99+' : count),
+              style: ts(9, weight: bold, color: Colors.white),
             ),
           ),
-      ]);
+        ),
+    ],
+  );
 }
 
 class SectionTitle extends StatelessWidget {
@@ -184,11 +210,18 @@ class SectionTitle extends StatelessWidget {
   final Widget? trailing;
 
   @override
-  Widget build(BuildContext context) => Row(children: [
-        if (icon != null) ...[Icon(icon, size: 16, color: AppColors.maroon), const SizedBox(width: 6)],
-        Expanded(child: Text(text, style: ts(14, weight: bold, color: AppColors.maroon))),
-        ?trailing,
-      ]);
+  Widget build(BuildContext context) => Row(
+    children: [
+      if (icon != null) ...[Icon(icon, size: 16, color: AppColors.maroon), const SizedBox(width: 6)],
+      Expanded(
+        child: Text(
+          text,
+          style: ts(14, weight: bold, color: AppColors.maroon),
+        ),
+      ),
+      ?trailing,
+    ],
+  );
 }
 
 class FieldLabel extends StatelessWidget {
@@ -196,9 +229,12 @@ class FieldLabel extends StatelessWidget {
   final String text;
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 6, top: 4),
-        child: Text(text, style: ts(12, weight: bold, color: AppColors.ink.withValues(alpha: 0.85))),
-      );
+    padding: const EdgeInsets.only(bottom: 6, top: 4),
+    child: Text(
+      text,
+      style: ts(12, weight: bold, color: AppColors.ink.withValues(alpha: 0.85)),
+    ),
+  );
 }
 
 class ErrorBox extends StatelessWidget {
@@ -206,34 +242,52 @@ class ErrorBox extends StatelessWidget {
   final String message;
   @override
   Widget build(BuildContext context) => Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: AppColors.red50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.red600.withValues(alpha: 0.3)),
-        ),
-        child: Text(message, style: ts(12, weight: semi, color: AppColors.red600)),
-      );
+    width: double.infinity,
+    padding: const EdgeInsets.all(10),
+    decoration: BoxDecoration(
+      color: AppColors.red50,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: AppColors.red600.withValues(alpha: 0.3)),
+    ),
+    child: Text(
+      message,
+      style: ts(12, weight: semi, color: AppColors.red600),
+    ),
+  );
 }
 
 class InfoBox extends StatelessWidget {
-  const InfoBox(this.message, {super.key, this.icon = LucideIcons.circleAlert, this.bg = AppColors.amber50, this.fg = AppColors.amber800});
+  const InfoBox(
+    this.message, {
+    super.key,
+    this.icon = LucideIcons.circleAlert,
+    this.bg = AppColors.amber50,
+    this.fg = AppColors.amber800,
+  });
   final String message;
   final IconData icon;
   final Color bg;
   final Color fg;
   @override
   Widget build(BuildContext context) => Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12), border: Border.all(color: fg.withValues(alpha: 0.2))),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(icon, size: 15, color: fg),
-          const SizedBox(width: 8),
-          Expanded(child: Text(message, style: ts(11, color: fg, height: 1.5))),
-        ]),
-      );
+    width: double.infinity,
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: bg,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: fg.withValues(alpha: 0.2)),
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 15, color: fg),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(message, style: ts(11, color: fg, height: 1.5)),
+        ),
+      ],
+    ),
+  );
 }
 
 class EmptyState extends StatelessWidget {
@@ -245,28 +299,47 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(color: AppColors.sandA(0.4), shape: BoxShape.circle),
-            child: Icon(icon, color: AppColors.maroon, size: 30),
+    padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 64,
+          height: 64,
+          decoration: BoxDecoration(color: AppColors.sandA(0.4), shape: BoxShape.circle),
+          child: Icon(icon, color: AppColors.maroon, size: 30),
+        ),
+        const SizedBox(height: 14),
+        Text(
+          title,
+          textAlign: TextAlign.center,
+          style: ts(14, weight: bold, color: AppColors.maroon),
+        ),
+        if (message != null) ...[
+          const SizedBox(height: 6),
+          Text(
+            message!,
+            textAlign: TextAlign.center,
+            style: ts(12, color: AppColors.grey600, height: 1.5),
           ),
-          const SizedBox(height: 14),
-          Text(title, textAlign: TextAlign.center, style: ts(14, weight: bold, color: AppColors.maroon)),
-          if (message != null) ...[
-            const SizedBox(height: 6),
-            Text(message!, textAlign: TextAlign.center, style: ts(12, color: AppColors.grey600, height: 1.5)),
-          ],
-          if (action != null) ...[const SizedBox(height: 16), action!],
-        ]),
-      );
+        ],
+        if (action != null) ...[const SizedBox(height: 16), action!],
+      ],
+    ),
+  );
 }
 
 /// Button that shows a spinner while [onPressed] runs and disables itself.
 class BusyButton extends StatefulWidget {
-  const BusyButton({super.key, required this.label, required this.onPressed, this.busyLabel, this.icon, this.color, this.expand = true});
+  const BusyButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.busyLabel,
+    this.icon,
+    this.color,
+    this.expand = true,
+  });
 
   final String label;
   final String? busyLabel;
@@ -297,14 +370,19 @@ class _BusyButtonState extends State<BusyButton> {
     final btn = ElevatedButton(
       style: widget.color != null ? ElevatedButton.styleFrom(backgroundColor: widget.color) : null,
       onPressed: widget.onPressed == null || _busy ? null : _run,
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        if (_busy)
-          const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-        else if (widget.icon != null)
-          Icon(widget.icon, size: 16),
-        if (_busy || widget.icon != null) const SizedBox(width: 8),
-        Flexible(child: Text(_busy ? (widget.busyLabel ?? widget.label) : widget.label, overflow: TextOverflow.ellipsis)),
-      ]),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (_busy)
+            const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+          else if (widget.icon != null)
+            Icon(widget.icon, size: 16),
+          if (_busy || widget.icon != null) const SizedBox(width: 8),
+          Flexible(
+            child: Text(_busy ? (widget.busyLabel ?? widget.label) : widget.label, overflow: TextOverflow.ellipsis),
+          ),
+        ],
+      ),
     );
     return widget.expand ? SizedBox(width: double.infinity, child: btn) : btn;
   }
@@ -312,23 +390,14 @@ class _BusyButtonState extends State<BusyButton> {
 
 /// Brand logo icon.
 class AppLogo extends StatelessWidget {
-  const AppLogo({
-    super.key,
-    this.size = 36,
-    this.border = true,
-  });
+  const AppLogo({super.key, this.size = 36, this.border = true});
 
   final double size;
   final bool border;
 
   @override
   Widget build(BuildContext context) {
-    final img = Image.asset(
-      'assets/images/logo.png',
-      width: size,
-      height: size,
-      fit: BoxFit.contain,
-    );
+    final img = Image.asset('assets/images/logo.png', width: size, height: size, fit: BoxFit.contain);
     if (!border) return img;
     return Container(
       width: size,
@@ -365,14 +434,19 @@ class Wordmark extends StatelessWidget {
       crossAxisAlignment: center ? CrossAxisAlignment.center : CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('Baby Care', style: ts(size, weight: FontWeight.w800, color: light ? Colors.white : AppColors.maroon, height: 1.1)),
-        Text('BY BABY MASALA',
-            style: TextStyle(
-              fontSize: size * 0.48,
-              fontWeight: bold,
-              letterSpacing: 1.4,
-              color: light ? AppColors.sand : AppColors.olive,
-            )),
+        Text(
+          'Baby Care',
+          style: ts(size, weight: FontWeight.w800, color: light ? Colors.white : AppColors.maroon, height: 1.1),
+        ),
+        Text(
+          'BY BABY MASALA',
+          style: TextStyle(
+            fontSize: size * 0.48,
+            fontWeight: bold,
+            letterSpacing: 1.4,
+            color: light ? AppColors.sand : AppColors.olive,
+          ),
+        ),
       ],
     );
 
@@ -396,13 +470,13 @@ class SheetHandle extends StatelessWidget {
   const SheetHandle({super.key});
   @override
   Widget build(BuildContext context) => Center(
-        child: Container(
-          margin: const EdgeInsets.only(top: 10, bottom: 6),
-          width: 40,
-          height: 4,
-          decoration: BoxDecoration(color: AppColors.sand, borderRadius: BorderRadius.circular(4)),
-        ),
-      );
+    child: Container(
+      margin: const EdgeInsets.only(top: 10, bottom: 6),
+      width: 40,
+      height: 4,
+      decoration: BoxDecoration(color: AppColors.sand, borderRadius: BorderRadius.circular(4)),
+    ),
+  );
 }
 
 /// Round tonal icon button used in the top bar (messenger, bell, …).
@@ -415,46 +489,66 @@ class TonalIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => CountBadge(
-        count: badge,
-        child: IconButton.filledTonal(
-          tooltip: tooltip,
-          style: IconButton.styleFrom(backgroundColor: Colors.white, side: BorderSide(color: AppColors.sandA(0.7))),
-          onPressed: onPressed,
-          icon: Icon(icon, size: 20, color: AppColors.maroon),
-        ),
-      );
+    count: badge,
+    child: IconButton.filledTonal(
+      tooltip: tooltip,
+      style: IconButton.styleFrom(
+        backgroundColor: Colors.white,
+        side: BorderSide(color: AppColors.sandA(0.7)),
+      ),
+      onPressed: onPressed,
+      icon: Icon(icon, size: 20, color: AppColors.maroon),
+    ),
+  );
 }
 
 /// Sheet with a title row and a close button; used for every modal.
-Future<T?> showAppSheet<T>(BuildContext context, {required String title, required WidgetBuilder builder, bool scroll = true}) {
+Future<T?> showAppSheet<T>(
+  BuildContext context, {
+  required String title,
+  required WidgetBuilder builder,
+  bool scroll = true,
+}) {
   return showModalBottomSheet<T>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
     showDragHandle: false,
-    builder: (ctx) => Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.92),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const SheetHandle(),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 4, 8, 4),
-            child: Row(children: [
-              Expanded(child: Text(title, style: ts(17, weight: bold, color: AppColors.maroon))),
-              IconButton.filledTonal(
-                style: IconButton.styleFrom(backgroundColor: AppColors.sandA(0.35)),
-                onPressed: () => Navigator.pop(ctx),
-                icon: const Icon(LucideIcons.x, size: 18, color: AppColors.maroon),
+    builder: (ctx) => SheetDragToClose(
+      child: Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.92),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SheetHandle(),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 4, 8, 4),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: ts(17, weight: bold, color: AppColors.maroon),
+                      ),
+                    ),
+                    IconButton.filledTonal(
+                      style: IconButton.styleFrom(backgroundColor: AppColors.sandA(0.35)),
+                      onPressed: () => Navigator.pop(ctx),
+                      icon: const Icon(LucideIcons.x, size: 18, color: AppColors.maroon),
+                    ),
+                  ],
+                ),
               ),
-            ]),
+              Flexible(
+                child: scroll
+                    ? SingleChildScrollView(padding: const EdgeInsets.fromLTRB(20, 14, 20, 24), child: builder(ctx))
+                    : builder(ctx),
+              ),
+            ],
           ),
-          Flexible(
-            child: scroll
-                ? SingleChildScrollView(padding: const EdgeInsets.fromLTRB(20, 14, 20, 24), child: builder(ctx))
-                : builder(ctx),
-          ),
-        ]),
+        ),
       ),
     ),
   );

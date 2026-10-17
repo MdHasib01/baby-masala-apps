@@ -19,6 +19,13 @@ Future<String?> pickImageAsDataUrl(
   BuildContext context, {
   int maxSide = 1280,
 }) async {
+  final raw = await pickImageBytes(context, maxSide: maxSide * 2);
+  if (raw == null) return null;
+  return compressToDataUrl(raw, maxSide: maxSide);
+}
+
+/// Camera/gallery chooser → raw bytes (bounded to [maxSide]), or null if cancelled.
+Future<Uint8List?> pickImageBytes(BuildContext context, {int maxSide = 2560}) async {
   final source = await showModalBottomSheet<ImageSource>(
     context: context,
     builder: (ctx) => SafeArea(
@@ -39,10 +46,9 @@ Future<String?> pickImageAsDataUrl(
   );
   if (source == null) return null;
 
-  final file = await ImagePicker().pickImage(source: source, maxWidth: maxSide * 2.0, maxHeight: maxSide * 2.0);
+  final file = await ImagePicker().pickImage(source: source, maxWidth: maxSide.toDouble(), maxHeight: maxSide.toDouble());
   if (file == null) return null;
-  final raw = await file.readAsBytes();
-  return compressToDataUrl(raw, maxSide: maxSide);
+  return file.readAsBytes();
 }
 
 Future<String> compressToDataUrl(Uint8List raw, {int maxSide = 1280}) async {

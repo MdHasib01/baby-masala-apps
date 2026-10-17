@@ -93,6 +93,8 @@ class User {
     this.isAdmin = false,
     this.bio,
     this.coverPhoto,
+    this.location,
+    this.dateOfBirth,
     this.earnedPoints = 0,
     this.spentPoints = 0,
     this.isVerified = false,
@@ -115,6 +117,8 @@ class User {
   final bool isAdmin;
   final String? bio;
   final String? coverPhoto;
+  final String? location;
+  final String? dateOfBirth; // YYYY-MM-DD
   final int earnedPoints;
   final int spentPoints;
   final bool isVerified;
@@ -139,6 +143,8 @@ class User {
         isAdmin: jBool(j, 'isAdmin') || j['role'] == 'admin',
         bio: jStrN(j, 'bio'),
         coverPhoto: jStrN(j, 'coverPhoto'),
+        location: jStrN(j, 'location'),
+        dateOfBirth: jStrN(j, 'dateOfBirth'),
         earnedPoints: jInt(j, 'earnedPoints'),
         spentPoints: jInt(j, 'spentPoints'),
         isVerified: jBool(j, 'isVerified'),
@@ -157,6 +163,8 @@ class User {
         'avatar': avatar,
         'bio': bio,
         'coverPhoto': coverPhoto,
+        'location': location,
+        'dateOfBirth': dateOfBirth,
         'addresses': addresses.map((a) => a.toJson()).toList(),
         'notificationPrefs': notificationPrefs.toJson(),
         'privacySettings': privacySettings.toJson(),
@@ -167,6 +175,8 @@ class User {
     String? avatar,
     String? bio,
     String? coverPhoto,
+    String? location,
+    String? dateOfBirth,
     List<Address>? addresses,
     NotificationPrefs? notificationPrefs,
     PrivacySettings? privacySettings,
@@ -180,6 +190,8 @@ class User {
         isAdmin: isAdmin,
         bio: bio ?? this.bio,
         coverPhoto: coverPhoto ?? this.coverPhoto,
+        location: location ?? this.location,
+        dateOfBirth: dateOfBirth ?? this.dateOfBirth,
         earnedPoints: earnedPoints,
         spentPoints: spentPoints,
         isVerified: isVerified,

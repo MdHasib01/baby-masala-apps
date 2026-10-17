@@ -10,6 +10,7 @@ import '../../features/auth/membership_screen.dart';
 import '../../features/auth/signup_screen.dart';
 import '../../features/auth/verify_screen.dart';
 import '../../features/auth/welcome_screen.dart';
+import '../../features/complaints/complaints_screen.dart';
 import '../../features/doctor/ask_doctor_screen.dart';
 import '../../features/friends/friends_tab.dart';
 import '../../features/messenger/messenger_screen.dart';
@@ -38,6 +39,7 @@ class Routes {
   static const settings = '/settings';
   static const addresses = '/addresses';
   static const friends = '/friends';
+  static const complaints = '/complaints';
 }
 
 const _stageRoute = {
@@ -83,6 +85,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Routes.settings, builder: (_, _) => const SettingsScreen()),
       GoRoute(path: Routes.addresses, builder: (_, _) => const AddressManagerScreen()),
       GoRoute(path: Routes.friends, builder: (_, _) => const FriendsScreen()),
+      GoRoute(path: Routes.complaints, builder: (_, _) => const ComplaintsScreen()),
     ],
   );
 });
