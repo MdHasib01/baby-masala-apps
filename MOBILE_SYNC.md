@@ -27,6 +27,16 @@ flutter run --dart-define=API_BASE_URL=http://<PC-LAN-IP>:5000/api     # real ph
 npm run dev         # http://localhost:5173
 ```
 
+**Release APK (production API):**
+```bash
+flutter build apk --release \
+  --dart-define=API_BASE_URL=https://babycare.nuktatechnologies.com/api \
+  --dart-define=WEB_ORIGIN=https://babycare.nuktatechnologies.com
+# → build/app/outputs/flutter-apk/app-release.apk
+```
+- The APK is signed with the debug key. Before publishing on the Play Store, set up a release keystore in `android/app/build.gradle.kts`.
+- Release builds allow https only.
+
 | Setting | Where | Default |
 |---|---|---|
 | `API_BASE_URL` | `--dart-define` → `lib/core/config/env.dart` | `http://10.0.2.2:5000/api` |
@@ -272,6 +282,7 @@ Add a dated entry for **every** mobile change that affects screens, API usage, m
 
 | Date | Change | Files | Web follow-up? |
 |---|---|---|---|
+| 2026-10-18 | Removed the "রেসিপি ও পুষ্টি টিপস" banner from the top of the Home feed. Recipes are still reachable from আরও → রেসিপি ও টিপস and from My Baby. | `community_tab.dart` | Optional (the web `CommunityTab.tsx` still shows the banner) |
 | 2026-10-17 | Bottom bar: the Home circle is now solid button maroon (no gradient), with a gold ring when active. The white bar rises in a smooth rounded bump around it (`_BarShapePainter`). Launcher icon set in `mipmap-*` (`ic_launcher`, `ic_launcher_round`). | `home_shell.dart`, `android/app/src/main/res/mipmap-*`, `AndroidManifest.xml` | No |
 | 2026-10-17 | Bottom navigation with a centre Home circle, "আরও" More sheet (replaces the drawer), Friends as its own route, modern theme pass (§6 M20–M21). Impeller-safe: no blurred shadows, no fade/opacity animations (`AnimatedSwitcher`, image fade-in), no zoom page transitions, solid background behind the top bar. | `features/shell/*`, `friends_tab.dart`, `app_theme.dart`, `common.dart`, `net_image.dart`, `notifications_sheet.dart`, `messenger_screen.dart`, `admin_screen.dart`, `app_router.dart` | No (mobile-only UX) |
 | 2026-10-17 | Welcome logo: replaced the blurred `BoxShadow` with a border. On the Android emulator's Impeller backend the blur made the heart, badge and wordmark disappear. `ApiClient` now `debugPrint`s the underlying `DioException` on network errors. | `welcome_screen.dart`, `api_client.dart` | No |

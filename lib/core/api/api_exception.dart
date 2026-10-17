@@ -11,6 +11,9 @@ class ApiException implements Exception {
 
   static const String genericMessage = 'কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।';
   static const String networkMessage = 'সার্ভারের সাথে সংযোগ করা যাচ্ছে না। ইন্টারনেট সংযোগ পরীক্ষা করুন।';
+  /// Startup (bootstrap) failures other than "no internet" — usually the
+  /// server is restarting during a deploy.
+  static const String updatingMessage = 'অ্যাপটি এই মুহূর্তে আপডেট হচ্ছে। কিছুক্ষণ পর আবার চেষ্টা করুন।';
 
   factory ApiException.fromResponse(int status, Object? data) {
     if (data is Map) {

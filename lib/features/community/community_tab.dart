@@ -23,8 +23,6 @@ class CommunityTab extends ConsumerStatefulWidget {
 }
 
 class _CommunityTabState extends ConsumerState<CommunityTab> {
-  String _topic = allPostsLabel;
-  String _sort = 'newest';
   bool _loadingMore = false;
   bool _exhausted = false;
 
@@ -79,10 +77,7 @@ class _CommunityTabState extends ConsumerState<CommunityTab> {
   @override
   Widget build(BuildContext context) {
     final d = ref.watch(dataProvider);
-    var posts = d.posts.where((p) => _topic == allPostsLabel || p.topic == _topic).toList();
-    if (_sort == 'popular') {
-      posts.sort((a, b) => (b.likes + b.commentsCount) - (a.likes + a.commentsCount));
-    }
+    final posts = d.posts;
 
     return RefreshIndicator(
       color: AppColors.maroon,
@@ -95,39 +90,14 @@ class _CommunityTabState extends ConsumerState<CommunityTab> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 14, 16, 32),
           children: [
-            _recipesBanner(),
-            const SizedBox(height: 12),
             _composerBox(d.user.avatar, d.user.firstName),
             const SizedBox(height: 14),
-            SizedBox(
-              height: 34,
-              child: ListView(scrollDirection: Axis.horizontal, children: [
-                for (final t in [allPostsLabel, ...postTopics])
-                  PillChip(label: t, selected: _topic == t, onTap: () => setState(() => _topic = t)),
-              ]),
-            ),
-            const SizedBox(height: 8),
-            Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-              Text('সর্ট: ', style: ts(11, color: AppColors.grey500)),
-              DropdownButton<String>(
-                value: _sort,
-                isDense: true,
-                underline: const SizedBox(),
-                style: ts(12, weight: bold, color: AppColors.maroon),
-                items: const [
-                  DropdownMenuItem(value: 'newest', child: Text('নতুন পোস্ট')),
-                  DropdownMenuItem(value: 'popular', child: Text('জনপ্রিয়')),
-                ],
-                onChanged: (v) => setState(() => _sort = v ?? 'newest'),
-              ),
-            ]),
-            const SizedBox(height: 6),
             if (posts.isEmpty)
               AppCard(
                 child: Column(children: [
                   const Icon(LucideIcons.circleAlert, color: AppColors.grey400),
                   const SizedBox(height: 8),
-                  Text('এই টপিকে বর্তমানে কোনো পোস্ট নেই। প্রথম পোস্টটি আপনি করতে পারেন!',
+                  Text('এখনো কোনো পোস্ট নেই। প্রথম পোস্টটি আপনি করতে পারেন!',
                       textAlign: TextAlign.center, style: ts(12, color: AppColors.grey500)),
                 ]),
               )
@@ -143,33 +113,6 @@ class _CommunityTabState extends ConsumerState<CommunityTab> {
       ),
     );
   }
-
-  Widget _recipesBanner() => Material(
-        borderRadius: BorderRadius.circular(16),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () => context.push(Routes.recipes),
-          child: Ink(
-            decoration: BoxDecoration(gradient: AppColors.brandGradient, borderRadius: BorderRadius.circular(16)),
-            padding: const EdgeInsets.all(14),
-            child: Row(children: [
-              Container(
-                padding: const EdgeInsets.all(9),
-                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
-                child: const Icon(LucideIcons.utensils, color: AppColors.gold, size: 20),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text('রেসিপি ও পুষ্টি টিপস', style: ts(14, weight: bold, color: Colors.white)),
-                  Text('শিশুর বয়স অনুযায়ী স্বাস্থ্যকর খাবার ও রেসিপি দেখুন', style: ts(11, color: AppColors.sand)),
-                ]),
-              ),
-              const Icon(LucideIcons.chevronRight, color: Colors.white),
-            ]),
-          ),
-        ),
-      );
 
   Widget _composerBox(String avatar, String firstName) => AppCard(
         padding: const EdgeInsets.all(12),
@@ -206,7 +149,7 @@ class _CommunityTabState extends ConsumerState<CommunityTab> {
             ),
             Expanded(
               child: TextButton.icon(
-                onPressed: () => setState(() => _topic = 'খাবার'),
+                onPressed: () => showPostComposer(context, fixedTopic: postTopics.first),
                 icon: const Icon(LucideIcons.shieldCheck, size: 16, color: AppColors.gold),
                 label: Text('রেসিপি টপিক', style: ts(12, weight: semi)),
               ),

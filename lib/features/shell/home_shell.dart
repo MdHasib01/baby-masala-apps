@@ -25,13 +25,6 @@ import 'more_sheet.dart';
 class HomeShell extends ConsumerWidget {
   const HomeShell({super.key});
 
-  static const _titles = {
-    HomeTab.home: null, // brand wordmark
-    HomeTab.baby: 'মাই বেবি',
-    HomeTab.rewards: 'রিওয়ার্ডস',
-    HomeTab.shop: 'শপ',
-  };
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tab = ref.watch(homeTabProvider);
@@ -51,7 +44,7 @@ class HomeShell extends ConsumerWidget {
         body: SafeArea(
           bottom: false,
           child: Column(children: [
-            _TopBar(title: _titles[tab]),
+            const _TopBar(),
             Expanded(
               child: IndexedStack(
                 index: tab.index,
@@ -72,8 +65,7 @@ class HomeShell extends ConsumerWidget {
 }
 
 class _TopBar extends ConsumerWidget {
-  const _TopBar({this.title});
-  final String? title;
+  const _TopBar();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -109,11 +101,20 @@ class _TopBar extends ConsumerWidget {
         Expanded(
           child: Align(
             alignment: Alignment.centerLeft,
-            child: title == null
-                ? const Wordmark(size: 19, withLogo: true)
-                : Text(title!, style: ts(20, weight: FontWeight.w800, color: AppColors.maroon)),
+            // scaleDown: three header icons leave little room on narrow phones.
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Wordmark(size: 19, withLogo: true),
+            ),
           ),
         ),
+        TonalIconButton(
+          tooltip: 'ফ্রেন্ডস',
+          icon: LucideIcons.users,
+          badge: d.friends.where((f) => f.friendshipStatus == 'request_received' && f.isBlocked != true).length,
+          onPressed: () => context.push(Routes.friends),
+        ),
+        const SizedBox(width: 6),
         TonalIconButton(
           tooltip: 'মেসেঞ্জার',
           icon: LucideIcons.messageCircle,

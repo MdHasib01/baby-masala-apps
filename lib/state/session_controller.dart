@@ -90,7 +90,8 @@ class SessionController extends Notifier<SessionState> {
       state = state.copyWith(stage: b.user.isMember ? AuthStage.app : AuthStage.membership);
     } catch (e) {
       if (ref.read(tokenStoreProvider).current == null) return; // 401 already reset us
-      state = state.copyWith(stage: AuthStage.loading, loadError: errorMessage(e));
+      final msg = e is ApiException && e.code == 'NETWORK' ? e.message : ApiException.updatingMessage;
+      state = state.copyWith(stage: AuthStage.loading, loadError: msg);
     }
   }
 

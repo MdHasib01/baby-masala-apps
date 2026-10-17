@@ -38,7 +38,9 @@ class _PostComposer extends ConsumerStatefulWidget {
 
 class _PostComposerState extends ConsumerState<_PostComposer> {
   late final _content = TextEditingController(text: widget.editing?.content ?? '');
-  late String _topic = widget.fixedTopic ??
+  // No topic picker: the API still needs one, so edits keep theirs and new
+  // posts use the caller's fixedTopic or the default.
+  late final String _topic = widget.fixedTopic ??
       (postTopics.contains(widget.editing?.topic) ? widget.editing!.topic : postTopics.first);
   late String? _media = widget.editing?.mediaUrl;
   String? _error;
@@ -121,15 +123,6 @@ class _PostComposerState extends ConsumerState<_PostComposer> {
               IconButton(onPressed: _close, icon: const Icon(LucideIcons.x, size: 20)),
             ]),
             const SizedBox(height: 8),
-            if (widget.fixedTopic == null) ...[
-              const FieldLabel('টপিক নির্বাচন করুন'),
-              DropdownButtonFormField<String>(
-                initialValue: _topic,
-                items: [for (final t in postTopics) DropdownMenuItem(value: t, child: Text(t, style: ts(13)))],
-                onChanged: (v) => setState(() => _topic = v ?? _topic),
-              ),
-              const SizedBox(height: 10),
-            ],
             const FieldLabel('আপনার অভিজ্ঞতা লিখুন'),
             TextField(
               controller: _content,

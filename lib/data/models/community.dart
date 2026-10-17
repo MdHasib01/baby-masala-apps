@@ -1,9 +1,7 @@
 import '../../core/utils/json.dart';
 
 /// Topics accepted by the API (`POST_TOPICS` in the backend).
-/// 'সব পোস্ট' is a UI filter label only — never send it.
 const postTopics = ['খাবার', 'ঘুম', 'বিকাশ', 'মায়ের গল্প'];
-const allPostsLabel = 'সব পোস্ট';
 
 class Post {
   const Post({
