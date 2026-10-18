@@ -79,6 +79,8 @@ class _PostCardState extends ConsumerState<PostCard> {
                     actions.hide(post);
                   case 'report':
                     actions.report(post);
+                  case 'block':
+                    actions.blockAuthor(post);
                   case 'edit':
                     showPostComposer(context, editing: post);
                   case 'delete':
@@ -89,6 +91,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                 _menu('save', LucideIcons.bookmark, post.savedByMe ? 'সেভ সরিয়ে নিন' : 'পোস্ট সেভ করুন'),
                 _menu('hide', LucideIcons.eyeOff, 'ফিড থেকে লুকান'),
                 _menu('report', LucideIcons.flag, 'রিপোর্ট করুন'),
+                if (!isOwn && post.authorId != null) _menu('block', LucideIcons.ban, 'এই ব্যবহারকারীকে ব্লক করুন', danger: true),
                 if (isOwn) ...[
                   const PopupMenuDivider(),
                   _menu('edit', LucideIcons.pencil, 'এডিট করুন'),

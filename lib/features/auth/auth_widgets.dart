@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../core/config/env.dart';
+import '../../core/router/app_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../shared/widgets/common.dart';
 
@@ -80,7 +83,51 @@ class AuthScaffold extends StatelessWidget {
   }
 }
 
-/// WhatsApp / Email segmented toggle.
+/// Starting contact method for login / signup.
+const String defaultContactMethod = Env.phoneLoginEnabled ? 'whatsapp' : 'email';
+
+/// Tappable "শর্তাবলী" / "গোপনীয়তা নীতি" consent line for sign-up.
+class LegalConsent extends StatelessWidget {
+  const LegalConsent({super.key, required this.value, required this.onChanged});
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget link(String text, String route) => GestureDetector(
+          onTap: () => context.push(route),
+          child: Text(text,
+              style: ts(12, weight: bold, color: AppColors.maroon).copyWith(decoration: TextDecoration.underline)),
+        );
+    return InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: () => onChanged(!value),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Checkbox(
+          value: value,
+          activeColor: AppColors.maroon,
+          side: const BorderSide(color: AppColors.grey500, width: 1.5),
+          visualDensity: VisualDensity.compact,
+          onChanged: (v) => onChanged(v ?? false),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
+              Text('আমি ', style: ts(12, color: AppColors.grey600)),
+              link('ব্যবহারের শর্তাবলী', Routes.terms),
+              Text(' ও ', style: ts(12, color: AppColors.grey600)),
+              link('গোপনীয়তা নীতি', Routes.privacy),
+              Text(' পড়েছি এবং সম্মত আছি। আমার বয়স ১৮ বছর বা তার বেশি।', style: ts(12, color: AppColors.grey600)),
+            ]),
+          ),
+        ),
+      ]),
+    );
+  }
+}
+
+/// WhatsApp / Email segmented toggle. Hidden while phone login is disabled.
 class ContactMethodToggle extends StatelessWidget {
   const ContactMethodToggle({super.key, required this.method, required this.onChanged});
   final String method; // 'whatsapp' | 'email'
@@ -88,6 +135,7 @@ class ContactMethodToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!Env.phoneLoginEnabled) return const SizedBox.shrink();
     Widget btn(String value, IconData icon, String label) {
       final on = method == value;
       return Expanded(

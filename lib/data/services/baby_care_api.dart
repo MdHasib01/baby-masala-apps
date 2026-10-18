@@ -33,10 +33,8 @@ class BabyCareApi {
 
   Future<User> me() async => User.fromJson(jMap(await _c.get('/auth/me'), 'user'));
 
-  Future<User> activateMembership(String couponCode) async =>
-      User.fromJson(jMap(await _c.post('/auth/activate-membership', {'couponCode': couponCode}), 'user'));
-
-  Future<User> demoPurchaseMembership() async => User.fromJson(jMap(await _c.post('/auth/demo-purchase'), 'user'));
+  /// Permanently deletes the signed-in account and its data on the server.
+  Future<void> deleteAccount() async => _c.delete('/me');
 
   // ---------------------------------------------------------- Bootstrap --
   Future<BootstrapData> bootstrap() async => BootstrapData.fromJson(await _c.get('/bootstrap'));
@@ -98,6 +96,9 @@ class BabyCareApi {
       Post.fromJson(jMap(await _c.post('/posts/${seg(postId)}/save'), 'post'));
 
   Future<void> hidePost(String postId) => _c.post('/posts/${seg(postId)}/hide');
+
+  /// Hides every post and comment by [userId] from this user, server-side.
+  Future<void> blockUser(String userId) => _c.post('/users/${seg(userId)}/block');
 
   Future<void> reportPost(String postId, [String? reason]) =>
       _c.post('/posts/${seg(postId)}/report', compact({'reason': reason}));

@@ -3,14 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../core/api/api_exception.dart';
 import '../../core/router/app_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/bn_digits.dart';
+import '../../core/utils/links.dart';
 import '../../shared/widgets/common.dart';
 import '../../shared/widgets/net_image.dart';
 import '../../state/app_data_controller.dart';
-import '../../state/providers.dart';
 import '../../state/session_controller.dart';
 import '../notifications/notifications_sheet.dart';
 import '../shop/orders_sheet.dart';
@@ -19,9 +18,8 @@ import 'home_tab.dart';
 
 /// "আরও" (More) — opened from the bottom navigation. Holds every option of
 /// the web's ProfileDrawer.tsx plus the mobile-only entries (MOBILE_SYNC.md §6):
-/// profile card, selected child, friends, messenger, doctor, recipes,
-/// notifications, orders, addresses, settings, admin (admins only),
-/// membership coupon and logout.
+/// profile card, selected child, recipes, notifications, orders, addresses,
+/// settings, about, admin (admins only), logout and the legal links.
 Future<void> showMoreSheet(BuildContext context) => showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -41,16 +39,6 @@ class _MoreSheet extends ConsumerStatefulWidget {
 }
 
 class _MoreSheetState extends ConsumerState<_MoreSheet> {
-  final _coupon = TextEditingController();
-  String? _couponError;
-  String? _couponSuccess;
-
-  @override
-  void dispose() {
-    _coupon.dispose();
-    super.dispose();
-  }
-
   BuildContext get _root => widget.rootContext;
 
   void _go(String route, {Object? extra}) {
@@ -66,23 +54,6 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
   void _then(void Function(BuildContext root) action) {
     Navigator.pop(context);
     action(_root);
-  }
-
-  Future<void> _activateCoupon() async {
-    if (_coupon.text.trim().isEmpty) {
-      setState(() => _couponError = 'দয়া করে কুপন কোড লিখুন।');
-      return;
-    }
-    try {
-      final user = await ref.read(apiProvider).activateMembership(_coupon.text.trim());
-      ref.read(appDataProvider.notifier).setUserFromServer(user);
-      setState(() {
-        _couponSuccess = 'অভিনন্দন! আপনার প্রিমিয়াম মেম্বারশিপ সক্রিয় হয়েছে।';
-        _couponError = null;
-      });
-    } catch (e) {
-      setState(() => _couponError = errorMessage(e));
-    }
   }
 
   Future<void> _logout() async {
@@ -102,11 +73,9 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
     final d = ref.watch(dataProvider);
     final user = d.user;
     final child = d.children.firstOrNull;
+    final version = ref.watch(appVersionProvider).value ?? '';
 
     final items = <_MoreItem>[
-      _MoreItem(LucideIcons.users, 'ফ্রেন্ডস', AppColors.olive, () => _go(Routes.friends)),
-      _MoreItem(LucideIcons.messageCircle, 'মেসেঞ্জার', AppColors.maroon, () => _go(Routes.messenger), badge: d.unreadMessages),
-      _MoreItem(LucideIcons.stethoscope, 'ডাক্তারকে জিজ্ঞেস করুন', AppColors.blue600, () => _go(Routes.doctor)),
       _MoreItem(LucideIcons.utensils, 'রেসিপি ও টিপস', AppColors.amber800, () => _go(Routes.recipes)),
       _MoreItem(LucideIcons.bell, 'নোটিফিকেশন', AppColors.maroon, () => _then(showNotificationsSheet), badge: d.unreadNotifications),
       _MoreItem(LucideIcons.package, 'আমার অর্ডার', AppColors.olive, () => _then(showOrdersSheet)),
@@ -114,6 +83,7 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
       _MoreItem(LucideIcons.mapPin, 'ঠিকানা', AppColors.green700, () => _go(Routes.addresses)),
       _MoreItem(LucideIcons.messageSquareWarning, 'অভিযোগ ও সাপোর্ট', AppColors.red600, () => _go(Routes.complaints)),
       _MoreItem(LucideIcons.settings, 'সেটিংস ও গোপনীয়তা', AppColors.grey600, () => _go(Routes.settings)),
+      _MoreItem(LucideIcons.info, 'অ্যাপ সম্পর্কে', AppColors.blue600, () => _go(Routes.about)),
       if (user.isAdmin) _MoreItem(LucideIcons.shield, 'অ্যাডমিন', AppColors.red600, () => _go(Routes.admin)),
     ];
 
@@ -146,12 +116,8 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Text(user.name, style: ts(17, weight: bold, color: Colors.white), overflow: TextOverflow.ellipsis),
                           const SizedBox(height: 2),
-                          Row(children: [
-                            Icon(LucideIcons.shieldCheck, size: 13, color: user.isMember ? AppColors.gold : AppColors.sand),
-                            const SizedBox(width: 4),
-                            Text(user.isMember ? 'প্রিমিয়াম মেম্বার' : 'স্ট্যান্ডার্ড অ্যাকাউন্ট',
-                                style: ts(12, weight: semi, color: AppColors.sand)),
-                          ]),
+                          Text(user.contact,
+                              style: ts(12, weight: semi, color: AppColors.sand), overflow: TextOverflow.ellipsis),
                         ]),
                       ),
                       const Icon(LucideIcons.chevronRight, color: Colors.white),
@@ -181,8 +147,6 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
               children: [for (final i in items) _tile(i)],
             ),
             const SizedBox(height: 16),
-            _membershipCard(user.isMember),
-            const SizedBox(height: 16),
             OutlinedButton.icon(
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.red600,
@@ -205,6 +169,13 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
                 ],
               ),
             ),
+            const SizedBox(height: 4),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              if (version.isNotEmpty) Text('সংস্করণ $version  ·  ', style: ts(10.5, color: AppColors.grey400)),
+              _footerLink('গোপনীয়তা নীতি', Routes.privacy),
+              Text('  ·  ', style: ts(10.5, color: AppColors.grey400)),
+              _footerLink('শর্তাবলী', Routes.terms),
+            ]),
           ]),
         ),
       ),
@@ -263,59 +234,9 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
         ),
       );
 
-  /// Same card as the web drawer, but the coupon is checked by the server.
-  Widget _membershipCard(bool isMember) => AppCard(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Row(children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: AppColors.gold.withValues(alpha: 0.18), borderRadius: BorderRadius.circular(12)),
-              child: const Icon(LucideIcons.sparkles, size: 18, color: AppColors.gold),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('Baby Care মেম্বারশিপ', style: ts(14, weight: bold, color: AppColors.maroon)),
-                Row(children: [
-                  Text('মূল্য: ', style: ts(11, color: AppColors.grey500)),
-                  Text('৳ ৮,০০০', style: ts(11, color: AppColors.grey500).copyWith(decoration: TextDecoration.lineThrough)),
-                  const SizedBox(width: 6),
-                  const Tag('ফ্রি কুপন উপলব্ধ', bg: Color(0xFFFEF3C7), fg: AppColors.amber800),
-                ]),
-              ]),
-            ),
-          ]),
-          const SizedBox(height: 12),
-          if (isMember)
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: AppColors.green50, borderRadius: BorderRadius.circular(12)),
-              child: Row(children: [
-                const Icon(LucideIcons.circleCheck, size: 16, color: AppColors.green700),
-                const SizedBox(width: 8),
-                Text('আপনার মেম্বারশিপ সক্রিয়', style: ts(12.5, weight: bold, color: AppColors.green700)),
-              ]),
-            )
-          else ...[
-            Row(children: [
-              Expanded(
-                child: TextField(
-                  controller: _coupon,
-                  textCapitalization: TextCapitalization.characters,
-                  decoration: const InputDecoration(hintText: 'কুপন কোড (BABYCARE)'),
-                ),
-              ),
-              const SizedBox(width: 8),
-              BusyButton(label: 'অ্যাক্টিভ', expand: false, onPressed: _activateCoupon),
-            ]),
-            if (_couponError != null) ...[const SizedBox(height: 8), ErrorBox(_couponError!)],
-          ],
-          if (_couponSuccess != null) ...[
-            const SizedBox(height: 8),
-            Text(_couponSuccess!, style: ts(12, weight: semi, color: AppColors.green700)),
-          ],
-        ]),
+  Widget _footerLink(String label, String route) => GestureDetector(
+        onTap: () => _go(route),
+        child: Text(label, style: ts(10.5, weight: semi, color: AppColors.grey500).copyWith(decoration: TextDecoration.underline)),
       );
 }
 

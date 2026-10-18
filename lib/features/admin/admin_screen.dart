@@ -104,7 +104,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('ডেমো অ্যাডমিন প্যানেল'),
+            const Text('অ্যাডমিন প্যানেল'),
             Text('বেবি কেয়ার ও বেবি মসলা ম্যানেজমেন্ট কনসোল', style: ts(10.5, color: AppColors.grey500)),
           ]),
           bottom: TabBar(
@@ -116,7 +116,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
               Tab(text: 'অর্ডার ও ডেলিভারি (${toBnDigits(d?.orders.length ?? 0)})'),
               Tab(text: 'প্রোডাক্ট ও স্টক (${toBnDigits(d?.products.length ?? 0)})'),
               Tab(text: 'কনটেস্ট ও সাবমিশন (${toBnDigits(d?.submissions.length ?? 0)})'),
-              const Tab(text: 'কুপন ও পয়েন্ট রুলস'),
+              const Tab(text: 'পয়েন্ট রুলস'),
             ],
           ),
         ),
@@ -263,19 +263,8 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                           ]),
                         ),
                     ]),
-                    // ---- coupons & rules
+                    // ---- rules
                     _list([
-                      AppCard(
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text('সক্রিয় কুপন কোড', style: ts(13, weight: bold, color: AppColors.maroon)),
-                          const SizedBox(height: 8),
-                          Row(children: [
-                            const Tag('BABYCARE', bg: AppColors.gold, fg: AppColors.maroon),
-                            const SizedBox(width: 8),
-                            Text('৳ ৮,০০০ মেম্বারশিপ ফ্রি', style: ts(12)),
-                          ]),
-                        ]),
-                      ),
                       AppCard(
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Text('পয়েন্ট অর্জনের রুলস (সার্ভার)', style: ts(13, weight: bold, color: AppColors.maroon)),

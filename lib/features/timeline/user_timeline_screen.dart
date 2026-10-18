@@ -13,7 +13,6 @@ import '../../state/app_data_controller.dart';
 import '../../state/providers.dart';
 import '../community/post_card.dart';
 import '../community/post_composer.dart';
-import '../friends/friends_tab.dart';
 
 /// `activeTimelineTarget` in App.tsx.
 class TimelineTarget {
@@ -141,9 +140,7 @@ class _UserTimelineScreenState extends ConsumerState<UserTimelineScreen> {
                   icon: const Icon(LucideIcons.pencil, size: 15),
                   label: const Text('প্রোফাইল এডিট করুন'),
                 ),
-              )
-            else
-              _friendActions(friend!),
+              ),
           ]),
         ),
         const SizedBox(height: 12),
@@ -172,29 +169,6 @@ class _UserTimelineScreenState extends ConsumerState<UserTimelineScreen> {
           },
         ),
       ]),
-    );
-  }
-
-  Widget _friendActions(FriendUser f) {
-    // Friend not in the synced list yet → add it with the new status (web does the same).
-    void setStatus(String status) {
-      final list = ref.read(dataProvider).friends;
-      final exists = list.any((x) => x.id == f.id || x.name == f.name);
-      ref.read(appDataProvider.notifier).setFriends(exists
-          ? [for (final x in list) (x.id == f.id || x.name == f.name) ? x.withStatus(status) : x]
-          : [...list, f.withStatus(status)]);
-    }
-
-    if (f.friendshipStatus == 'friends' || f.friendshipStatus == 'request_received') {
-      return Align(alignment: Alignment.centerLeft, child: FriendshipButtons(friend: f));
-    }
-    if (f.friendshipStatus == 'request_sent') {
-      return OutlinedButton(onPressed: () => setStatus('none'), child: const Text('রিকোয়েস্ট পাঠানো হয়েছে (বাতিল)'));
-    }
-    return ElevatedButton.icon(
-      onPressed: () => setStatus('request_sent'),
-      icon: const Icon(LucideIcons.userPlus, size: 15),
-      label: const Text('ফ্রেন্ড রিকোয়েস্ট পাঠান'),
     );
   }
 

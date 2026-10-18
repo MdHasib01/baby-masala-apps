@@ -124,7 +124,7 @@ class PriceSummary extends StatelessWidget {
 
 /// Checkout (ShopTab.tsx "showCheckout") → `POST /orders`.
 Future<void> showCheckoutSheet(BuildContext context) async {
-  final order = await showAppSheet<Order>(context, title: 'ডেমো চেকআউট ও পেমেন্ট', builder: (_) => const _Checkout());
+  final order = await showAppSheet<Order>(context, title: 'চেকআউট', builder: (_) => const _Checkout());
   if (order != null && context.mounted) {
     await showDialog<void>(
       context: context,
@@ -249,11 +249,7 @@ class _CheckoutState extends ConsumerState<_Checkout> {
       ),
       const SizedBox(height: 10),
       const FieldLabel('পেমেন্ট পদ্ধতি'),
-      Row(children: [
-        payBtn('cod', LucideIcons.banknote, 'ক্যাশ অন ডেলিভারি'),
-        const SizedBox(width: 8),
-        payBtn('online', LucideIcons.creditCard, 'অনলাইন পেমেন্ট (ডেমো)'),
-      ]),
+      Row(children: [payBtn('cod', LucideIcons.banknote, 'ক্যাশ অন ডেলিভারি')]),
       const SizedBox(height: 14),
       Container(
         padding: const EdgeInsets.all(14),

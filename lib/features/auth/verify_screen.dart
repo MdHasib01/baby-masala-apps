@@ -115,13 +115,9 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
       children: [
         AuthHeading(
           icon: LucideIcons.shieldCheck,
-          title: 'ডেমো কোড যাচাইকরণ',
-          subtitle: '${s.tempContact.isEmpty ? '01712345678' : s.tempContact} নম্বরে পাঠানো ৬ ডিজিটের কোড দিন।',
-          note: Text.rich(TextSpan(style: ts(11, color: AppColors.grey500), children: [
-            const TextSpan(text: '(ডেমো কোড: '),
-            TextSpan(text: '123456', style: ts(11, weight: bold, color: AppColors.maroon)),
-            const TextSpan(text: ')'),
-          ])),
+          title: 'কোড যাচাইকরণ',
+          subtitle: '${s.tempContact} ঠিকানায় পাঠানো ৬ ডিজিটের কোড দিন।',
+          note: Text('ইমেইল না পেলে স্প্যাম/জাঙ্ক ফোল্ডারটি দেখুন।', style: ts(11, color: AppColors.grey500)),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

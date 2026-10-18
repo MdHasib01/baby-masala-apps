@@ -27,4 +27,15 @@ class Env {
     'WEB_ORIGIN',
     defaultValue: liveWeb,
   );
+
+  /// Phone (WhatsApp) login needs an SMS provider on the server, which isn't
+  /// wired up yet; until then sign-up and login are email only.
+  static const bool phoneLoginEnabled = false;
+
+  // Publisher and public pages (also linked from the Play Store listing).
+  static const String publisher = 'Nukta Technologies';
+  static const String supportEmail = 'smnr7770@gmail.com';
+  static const String privacyUrl = '$liveWeb/privacy-policy.html';
+  static const String termsUrl = '$liveWeb/terms.html';
+  static const String deleteAccountUrl = '$liveWeb/delete-account.html';
 }

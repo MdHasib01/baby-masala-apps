@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/api/api_exception.dart';
+import '../../core/config/env.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/bn_digits.dart';
 import '../../shared/widgets/common.dart';
@@ -18,8 +19,8 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  String _method = 'whatsapp';
-  final _contact = TextEditingController(text: '01712345678'); // demo account
+  String _method = defaultContactMethod;
+  final _contact = TextEditingController();
   String? _error;
 
   @override
@@ -47,16 +48,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       onBack: () => session.goTo(AuthStage.welcome),
       footer: 'Baby Care by Baby Masala',
       children: [
-        AuthHeading(
+        const AuthHeading(
           title: 'লগইন করুন',
-          subtitle: 'আপনার অ্যাকাউন্টে প্রবেশ করতে যোগাযোগ মাধ্যম দিন।',
-          note: Text.rich(TextSpan(style: ts(11, color: AppColors.grey500), children: [
-            const TextSpan(text: '(ডেমো অ্যাকাউন্ট: '),
-            TextSpan(text: '01712345678', style: ts(11, weight: bold, color: AppColors.maroon)),
-            const TextSpan(text: ')'),
-          ])),
+          subtitle: 'আপনার অ্যাকাউন্টের ইমেইল দিন, আমরা সেখানে একটি যাচাই কোড পাঠাব।',
         ),
-        const FieldLabel('লগইন মাধ্যম'),
+        FieldLabel(Env.phoneLoginEnabled ? 'লগইন মাধ্যম' : 'ইমেইল ঠিকানা'),
         ContactMethodToggle(
           method: _method,
           onChanged: (m) => setState(() {

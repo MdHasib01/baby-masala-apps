@@ -49,6 +49,26 @@ class PostActions {
     ref.read(apiProvider).hidePost(p.id).catchError((Object e) => debugPrint('[hide post] $e'));
   }
 
+  /// Blocks the author: their posts and comments disappear for this user.
+  Future<void> blockAuthor(Post p) async {
+    final authorId = p.authorId;
+    if (authorId == null) return hide(p);
+    final ok = await confirmDialog(
+      context,
+      '${p.authorName}-কে ব্লক করবেন?\nতার কোনো পোস্ট বা কমেন্ট আপনি আর দেখবেন না।',
+      confirm: 'ব্লক করুন',
+      danger: true,
+    );
+    if (!ok) return;
+    try {
+      await ref.read(apiProvider).blockUser(authorId);
+      _data.removePostsBy(authorId);
+      if (context.mounted) toast(context, '${p.authorName}-কে ব্লক করা হয়েছে।');
+    } catch (e) {
+      if (context.mounted) toastError(context, e);
+    }
+  }
+
   Future<void> report(Post p) async {
     try {
       await ref.read(apiProvider).reportPost(p.id);

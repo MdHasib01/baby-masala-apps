@@ -9,7 +9,6 @@ import '../../shared/widgets/common.dart';
 import '../../shared/widgets/net_image.dart';
 import '../../state/app_data.dart';
 import '../../state/app_data_controller.dart';
-import 'simulated_call_screen.dart';
 
 /// Port of components/doctor/AskDoctorScreen.tsx.
 /// Questions are a client-owned list synced with `PUT /sync/doctorQuestions`.
@@ -189,8 +188,6 @@ class _QuestionFormState extends ConsumerState<_QuestionForm> {
         detailedQuestion: _details.text.trim(),
         status: dqWaiting,
         submissionDate: 'আজ',
-        assignedDoctorName: 'ডাঃ মোসাম্মত নাজনীন সুলতানা',
-        sampleReply: 'আপনার প্রশ্নটি ডেমো ডাক্তারের কাছে পৌঁছেছে। শীঘ্রই উত্তর দেওয়া হবে।',
         isPrivate: true,
       ),
       ...list,
@@ -399,7 +396,7 @@ class _BookingFlowState extends ConsumerState<_BookingFlow> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(color: AppColors.cream, borderRadius: BorderRadius.circular(12)),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('যোগ্যতা (ডেমো):', style: ts(11.5, weight: bold, color: AppColors.maroon)),
+              Text('যোগ্যতা:', style: ts(11.5, weight: bold, color: AppColors.maroon)),
               Text(doc.demoQualifications, style: ts(12, height: 1.5)),
               const SizedBox(height: 8),
               Text('কনসালটেশন ফি:', style: ts(11.5, weight: bold, color: AppColors.maroon)),
@@ -477,15 +474,6 @@ class _WaitingRoom extends StatelessWidget {
               const SizedBox(height: 16),
               Text('জরুরি চিকিৎসার জন্য এই সেবার অপেক্ষা করবেন না।', style: ts(11, color: AppColors.red600)),
               const SizedBox(height: 24),
-              BusyButton(
-                label: 'কল শুরু করুন (ডেমো ভিডিও)',
-                icon: LucideIcons.video,
-                color: AppColors.olive,
-                onPressed: () async => Navigator.of(context).pushReplacement(
-                  MaterialPageRoute<void>(builder: (_) => SimulatedCallScreen(doctorName: doctor.name)),
-                ),
-              ),
-              const SizedBox(height: 8),
               TextButton(onPressed: () => Navigator.pop(context), child: const Text('বাতিল')),
             ]),
           ),

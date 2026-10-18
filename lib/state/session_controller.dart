@@ -6,7 +6,7 @@ import 'app_data_controller.dart';
 import 'providers.dart';
 
 /// Same values as `AuthState` in babyCareService.ts, plus `starting`/`loading`.
-enum AuthStage { starting, loading, welcome, signup, login, verify, membership, app }
+enum AuthStage { starting, loading, welcome, signup, login, verify, app }
 
 @immutable
 class SessionState {
@@ -81,13 +81,13 @@ class SessionController extends Notifier<SessionState> {
 
   Future<void> verifyOtp(String code) => ref.read(apiProvider).verifyOtp(state.tempContact, code);
 
-  /// Loads all data and enters the app (or the membership screen).
+  /// Loads all data and enters the app.
   Future<void> loadApp() async {
     state = state.copyWith(stage: AuthStage.loading, clearError: true);
     try {
       final b = await ref.read(apiProvider).bootstrap();
       _data.applyBootstrap(b);
-      state = state.copyWith(stage: b.user.isMember ? AuthStage.app : AuthStage.membership);
+      state = state.copyWith(stage: AuthStage.app);
     } catch (e) {
       if (ref.read(tokenStoreProvider).current == null) return; // 401 already reset us
       final msg = e is ApiException && e.code == 'NETWORK' ? e.message : ApiException.updatingMessage;
@@ -95,10 +95,16 @@ class SessionController extends Notifier<SessionState> {
     }
   }
 
-  void finishMembership() => state = state.copyWith(stage: AuthStage.app);
-
   Future<void> logout() async {
     await _data.flush();
+    await ref.read(tokenStoreProvider).clear();
+    _reset();
+  }
+
+  /// Deletes the account on the server, then signs out without saving
+  /// anything back (pending edits would recreate deleted data).
+  Future<void> deleteAccount() async {
+    await ref.read(apiProvider).deleteAccount();
     await ref.read(tokenStoreProvider).clear();
     _reset();
   }

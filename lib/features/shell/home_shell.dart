@@ -109,20 +109,6 @@ class _TopBar extends ConsumerWidget {
           ),
         ),
         TonalIconButton(
-          tooltip: 'ফ্রেন্ডস',
-          icon: LucideIcons.users,
-          badge: d.friends.where((f) => f.friendshipStatus == 'request_received' && f.isBlocked != true).length,
-          onPressed: () => context.push(Routes.friends),
-        ),
-        const SizedBox(width: 6),
-        TonalIconButton(
-          tooltip: 'মেসেঞ্জার',
-          icon: LucideIcons.messageCircle,
-          badge: d.unreadMessages,
-          onPressed: () => context.push(Routes.messenger),
-        ),
-        const SizedBox(width: 6),
-        TonalIconButton(
           tooltip: 'নোটিফিকেশন',
           icon: LucideIcons.bell,
           badge: d.unreadNotifications,

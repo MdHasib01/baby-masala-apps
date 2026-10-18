@@ -40,7 +40,7 @@ class WelcomeScreen extends ConsumerWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                   decoration: BoxDecoration(color: AppColors.gold, borderRadius: BorderRadius.circular(20)),
-                  child: Text('১০০% নিরাপদ', style: ts(10, weight: bold, color: AppColors.maroon)),
+                  child: Text('সম্পূর্ণ ফ্রি', style: ts(10, weight: bold, color: AppColors.maroon)),
                 ),
               ),
             ]),
@@ -53,7 +53,7 @@ class WelcomeScreen extends ConsumerWidget {
               style: ts(13, color: AppColors.grey600, height: 1.6),
             ),
             const SizedBox(height: 20),
-            _feature(LucideIcons.shieldCheck, 'বিশেষজ্ঞ নির্দেশিকা ও বয়সভিত্তিক চার্ট'),
+            _feature(LucideIcons.shieldCheck, 'বয়সভিত্তিক খাবারের চার্ট ও প্যারেন্টিং টিপস'),
             const SizedBox(height: 8),
             _feature(LucideIcons.sparkles, 'প্রিমিয়াম হার্বস ও রিওয়ার্ডস ক্লাব'),
             const Spacer(),

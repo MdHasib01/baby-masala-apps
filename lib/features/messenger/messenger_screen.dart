@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -113,7 +112,6 @@ class ChatScreen extends ConsumerStatefulWidget {
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final _input = TextEditingController();
   final _scroll = ScrollController();
-  Timer? _reply;
 
   Conversation get _conv => widget.conversation;
 
@@ -134,7 +132,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   void dispose() {
-    _reply?.cancel();
     _input.dispose();
     _scroll.dispose();
     super.dispose();
@@ -167,23 +164,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     _input.clear();
     WidgetsBinding.instance.addPostFrameCallback((_) => _toBottom());
 
-    // Simulated automated reply demo (same text as the web).
-    _reply?.cancel();
-    _reply = Timer(const Duration(seconds: 2), () {
-      final current = ref.read(dataProvider).messages;
-      data.setMessages([
-        ...current,
-        Message(
-          id: 'm-reply-${DateTime.now().millisecondsSinceEpoch}',
-          conversationId: _conv.id,
-          senderId: _conv.participant.id,
-          text: 'ধন্যবাদ আপু! মেসেজটি পেয়েছি। (ডেমো অটো-রিপ্লাই)',
-          timestamp: 'এইমাত্র',
-          status: 'delivered',
-        ),
-      ]);
-      if (mounted) WidgetsBinding.instance.addPostFrameCallback((_) => _toBottom());
-    });
   }
 
   @override
@@ -204,7 +184,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 Row(children: [
                   Container(width: 7, height: 7, decoration: const BoxDecoration(color: AppColors.green700, shape: BoxShape.circle)),
                   const SizedBox(width: 5),
-                  Text('সক্রিয় (ডেমো) • প্রোফাইল দেখুন', style: ts(10.5, color: AppColors.grey500)),
+                  Text('প্রোফাইল দেখুন', style: ts(10.5, color: AppColors.grey500)),
                 ]),
               ]),
             ),

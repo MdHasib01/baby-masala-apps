@@ -155,6 +155,10 @@ class AppDataController extends Notifier<AppData?> {
     );
   }
 
+  void removePostsBy(String authorId) => state = data.copyWith(
+        posts: data.posts.where((p) => p.authorId != authorId).toList(),
+      );
+
   void removePost(String id) => state = data.copyWith(
         posts: data.posts.where((p) => p.id != id).toList(),
         comments: data.comments.where((c) => c.postId != id).toList(),

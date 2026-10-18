@@ -89,6 +89,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             trailing: const Icon(LucideIcons.chevronRight, size: 18),
           ),
         ),
+        const SizedBox(height: 12),
+        AppCard(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Column(children: [
+            _header('আইন ও তথ্য', LucideIcons.info),
+            _link(LucideIcons.shieldCheck, 'গোপনীয়তা নীতি', 'আমরা কোন তথ্য রাখি ও কেন', Routes.privacy),
+            _link(LucideIcons.fileText, 'ব্যবহারের শর্তাবলী', 'কমিউনিটির নিয়ম ও শর্ত', Routes.terms),
+            _link(LucideIcons.info, 'অ্যাপ সম্পর্কে', 'সংস্করণ, যোগাযোগ ও লাইসেন্স', Routes.about),
+          ]),
+        ),
         const SizedBox(height: 16),
         BusyButton(label: 'পরিবর্তন সেভ করুন', onPressed: () async => _save()),
         const SizedBox(height: 10),
@@ -102,9 +112,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           icon: const Icon(LucideIcons.logOut, size: 16),
           label: const Text('লগ আউট / অ্যাকাউন্ট পরিবর্তন'),
         ),
+        const SizedBox(height: 8),
+        Center(
+          child: TextButton.icon(
+            style: TextButton.styleFrom(foregroundColor: AppColors.red600),
+            onPressed: () => context.push(Routes.deleteAccount),
+            icon: const Icon(LucideIcons.trash2, size: 15),
+            label: Text('অ্যাকাউন্ট মুছে ফেলুন', style: ts(12.5, weight: semi, color: AppColors.red600)),
+          ),
+        ),
       ]),
     );
   }
+
+  Widget _link(IconData icon, String title, String subtitle, String route) => ListTile(
+        leading: Icon(icon, color: AppColors.maroon, size: 20),
+        title: Text(title, style: ts(13, weight: semi)),
+        subtitle: Text(subtitle, style: ts(11, color: AppColors.grey500)),
+        trailing: const Icon(LucideIcons.chevronRight, size: 18),
+        onTap: () => context.push(route),
+      );
 
   Widget _header(String text, IconData icon) => Padding(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),

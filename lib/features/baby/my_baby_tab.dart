@@ -117,30 +117,6 @@ class _MyBabyTabState extends ConsumerState<MyBabyTab> {
           ]),
         ),
         const SizedBox(height: 12),
-        // Ask doctor banner
-        Material(
-          borderRadius: BorderRadius.circular(16),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(16),
-            onTap: () => context.push(Routes.doctor),
-            child: Ink(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(gradient: AppColors.brandGradientReverse, borderRadius: BorderRadius.circular(16)),
-              child: Row(children: [
-                const Icon(LucideIcons.stethoscope, color: AppColors.gold),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('ডাক্তারকে জিজ্ঞেস করুন', style: ts(14, weight: bold, color: Colors.white)),
-                    Text('(${child.name}) এর স্বাস্থ্য নিয়ে বিশেষজ্ঞের পরামর্শ নিন', style: ts(11, color: AppColors.sand)),
-                  ]),
-                ),
-                const Icon(LucideIcons.chevronRight, color: Colors.white),
-              ]),
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
         // Child card
         AppCard(
           child: Column(children: [
@@ -361,7 +337,7 @@ class _MyBabyTabState extends ConsumerState<MyBabyTab> {
               ]),
             ),
           ),
-        const InfoBox('নোট: এটি একটি নমুনা বা ডেমো খাবারের চার্ট। শিশুর বয়স ও রুচি অনুযায়ী পরিবর্তনশীল। প্রফেশনাল পুষ্টিবিদ দ্বারা পর্যালোচিত নয়।'),
+        const InfoBox('নোট: এটি একটি নমুনা খাবারের চার্ট, শিশুর বয়স ও রুচি অনুযায়ী পরিবর্তনশীল। এটি কোনো পুষ্টিবিদ বা চিকিৎসকের পরামর্শ নয়। নতুন খাবার শুরু বা পরিবর্তনের আগে শিশুর চিকিৎসকের পরামর্শ নিন।'),
       ],
     ]);
   }

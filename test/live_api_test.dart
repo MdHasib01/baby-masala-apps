@@ -35,7 +35,7 @@ void main() {
         rethrow; // RATE_LIMITED: a code from <30 s ago is still valid
       }
     }
-    await api.verifyOtp(liveContact, '123456'); // DEMO_OTP (demo mode)
+    await api.verifyOtp(liveContact, '123456'); // DEMO_OTP: run the local backend with DEMO_MODE=true
   });
 
   test('bootstrap parses and synced lists round-trip', () async {

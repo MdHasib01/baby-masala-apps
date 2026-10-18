@@ -85,10 +85,10 @@ class _RedeemFlow extends ConsumerStatefulWidget {
 }
 
 class _RedeemFlowState extends ConsumerState<_RedeemFlow> {
-  static const _demoDeliveryCharge = 50;
+  static const _deliveryCharge = 50;
   String _step = 'details';
   late final _address = TextEditingController(
-    text: ref.read(dataProvider).user.defaultAddress?.details ?? 'রোড ৭/এ, ধানমন্ডি, ঢাকা - ১২০৯',
+    text: ref.read(dataProvider).user.defaultAddress?.details ?? '',
   );
   String? _error;
 
@@ -139,7 +139,7 @@ class _RedeemFlowState extends ConsumerState<_RedeemFlow> {
             ),
           ]),
           const SizedBox(height: 14),
-          InfoBox('ডেলিভারি চার্জ (ডেমো): ৳ ${toBnDigits(_demoDeliveryCharge)}\nপয়েন্ট দিয়ে গিফট অর্ডারের ক্ষেত্রে হোম ডেলিভারি চার্জ প্রযোজ্য।'),
+          InfoBox('ডেলিভারি চার্জ: ৳ ${toBnDigits(_deliveryCharge)}\nপয়েন্ট দিয়ে গিফট অর্ডারের ক্ষেত্রে হোম ডেলিভারি চার্জ প্রযোজ্য, যা ডেলিভারির সময় পরিশোধ করতে হবে।'),
           const SizedBox(height: 14),
           BusyButton(label: 'ঠিকানা নিশ্চিত করুন', onPressed: () async => setState(() => _step = 'address')),
         ]);

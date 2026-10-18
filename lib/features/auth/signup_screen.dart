@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/api/api_exception.dart';
+import '../../core/config/env.dart';
 import '../../core/utils/bn_digits.dart';
 import '../../shared/widgets/common.dart';
 import '../../state/session_controller.dart';
@@ -17,7 +18,8 @@ class SignUpScreen extends ConsumerStatefulWidget {
 }
 
 class _SignUpScreenState extends ConsumerState<SignUpScreen> {
-  String _method = 'whatsapp';
+  String _method = defaultContactMethod;
+  bool _agreed = false;
   final _name = TextEditingController();
   final _contact = TextEditingController();
   String? _error;
@@ -32,7 +34,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   Future<void> _submit() async {
     final name = _name.text.trim();
     final contact = toAsciiDigits(_contact.text.trim());
-    final err = name.isEmpty ? 'দয়া করে আপনার নাম লিখুন।' : validateContact(_method, contact);
+    final err = name.isEmpty
+        ? 'দয়া করে আপনার নাম লিখুন।'
+        : validateContact(_method, contact) ??
+            (_agreed ? null : 'অ্যাকাউন্ট খুলতে শর্তাবলী ও গোপনীয়তা নীতিতে সম্মতি দিন।');
     setState(() => _error = err);
     if (err != null) return;
     try {
@@ -46,7 +51,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   Widget build(BuildContext context) {
     return AuthScaffold(
       onBack: () => ref.read(sessionProvider.notifier).goTo(AuthStage.welcome),
-      footer: 'রেজিস্ট্রেশন করার মাধ্যমে আপনি আমাদের শর্তাবলীতে সম্মত হচ্ছেন।',
+      footer: 'Baby Care by Baby Masala',
       children: [
         const AuthHeading(title: 'নতুন অ্যাকাউন্ট তৈরি করুন', subtitle: 'বেবি কেয়ার পরিবারে আপনাকে স্বাগতম।'),
         const FieldLabel('মায়ের নাম'),
@@ -61,7 +66,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        const FieldLabel('যোগাযোগের মাধ্যম'),
+        FieldLabel(Env.phoneLoginEnabled ? 'যোগাযোগের মাধ্যম' : 'ইমেইল ঠিকানা'),
         ContactMethodToggle(
           method: _method,
           onChanged: (m) => setState(() {
@@ -80,6 +85,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           ),
           onSubmitted: (_) => _submit(),
         ),
+        const SizedBox(height: 8),
+        LegalConsent(value: _agreed, onChanged: (v) => setState(() => _agreed = v)),
         if (_error != null) ...[const SizedBox(height: 10), ErrorBox(_error!)],
         const SizedBox(height: 16),
         BusyButton(label: 'যাচাইকরণ কোড পাঠান', busyLabel: 'কোড পাঠানো হচ্ছে...', onPressed: _submit),
