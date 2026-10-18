@@ -30,8 +30,8 @@ npm run dev         # http://localhost:5173
 **Release APK (production API):**
 ```bash
 flutter build apk --release \
-  --dart-define=API_BASE_URL=https://babycare.nuktatechnologies.com/api \
-  --dart-define=WEB_ORIGIN=https://babycare.nuktatechnologies.com
+  --dart-define=API_BASE_URL=https://babymasalabd.com/api \
+  --dart-define=WEB_ORIGIN=https://babymasalabd.com
 # → build/app/outputs/flutter-apk/app-release.apk
 ```
 - The APK is signed with the debug key. Before publishing on the Play Store, set up a release keystore in `android/app/build.gradle.kts`.
@@ -39,8 +39,8 @@ flutter build apk --release \
 
 | Setting | Where | Default |
 |---|---|---|
-| `API_BASE_URL` | `--dart-define` → `lib/core/config/env.dart` | `http://10.0.2.2:5000/api` |
-| `WEB_ORIGIN` (used in "copy post link") | `--dart-define` → `env.dart` | `https://babycare.babymasala.com` |
+| `API_BASE_URL` | `--dart-define` → `lib/core/config/env.dart` | release: `https://babymasalabd.com/api` · debug: `http://10.0.2.2:5000/api` |
+| `WEB_ORIGIN` (used in "copy post link") | `--dart-define` → `env.dart` | `https://babymasalabd.com` |
 | Plain HTTP allowed | `android/app/src/debug/AndroidManifest.xml` (debug only) | on in debug, off in release |
 
 **Demo login:** `01712345678`, code `123456`, coupon `BABYCARE`.
@@ -285,6 +285,7 @@ Add a dated entry for **every** mobile change that affects screens, API usage, m
 
 | Date | Change | Files | Web follow-up? |
 |---|---|---|---|
+| 2026-10-18 | Live API changed to `https://babymasalabd.com/api` (health check OK). Release builds now default to it; debug builds still default to `http://10.0.2.2:5000/api`. `WEB_ORIGIN` is `https://babymasalabd.com`. New release APK built. | `core/config/env.dart` | Web: set `VITE_API_URL=https://babymasalabd.com/api` for the production build if the web isn't served from the same domain |
 | 2026-10-18 | The font changed from Hind Siliguri to the system font, Facebook-style (Roboto plus Noto Sans Bengali). The `google_fonts` dependency was removed. | `app_theme.dart`, `pubspec.yaml` | ✅ Done on web 2026-10-18 (`frontend/src/index.css` system font stack; Google Fonts link removed from `index.html`) |
 | 2026-10-18 | Removed the "রেসিপি ও পুষ্টি টিপস" banner from the top of the Home feed. Recipes are still reachable from আরও → রেসিপি ও টিপস and from My Baby. | `community_tab.dart` | ✅ Done on web 2026-10-18 (`CommunityTab.tsx` banner and `onOpenRecipes` prop removed; recipes still in the drawer) |
 | 2026-10-17 | Bottom bar: the Home circle is now solid button maroon (no gradient), with a gold ring when active. The white bar rises in a smooth rounded bump around it (`_BarShapePainter`). Launcher icon set in `mipmap-*` (`ic_launcher`, `ic_launcher_round`). | `home_shell.dart`, `android/app/src/main/res/mipmap-*`, `AndroidManifest.xml` | No |
