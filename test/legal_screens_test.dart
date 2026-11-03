@@ -24,7 +24,7 @@ void main() {
   testWidgets('about screen shows version, publisher and licenses entry', (tester) async {
     PackageInfo.setMockInitialValues(
       appName: 'Baby Care',
-      packageName: 'com.nuktatechnology.baby_care',
+      packageName: 'com.babymasalabd.babycare',
       version: '1.0.0',
       buildNumber: '1',
       buildSignature: '',

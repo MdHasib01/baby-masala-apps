@@ -194,9 +194,46 @@ void main() {
   });
 
   group('shop rules', () {
-    test('delivery is free strictly over ৳1000', () {
-      expect(deliveryFor(1000), 60);
-      expect(deliveryFor(1001), 0);
+    test('delivery charge depends on area (store settings)', () {
+      const d = ShopDelivery(inside: 70, outside: 110);
+      expect(d.forArea('inside'), 70);
+      expect(d.forArea('outside'), 110);
+      expect(BootstrapData.fromJson(sampleBootstrap).delivery.inside, 70); // default when `shop` is missing
+      final withShop = BootstrapData.fromJson({
+        ...sampleBootstrap,
+        'shop': {
+          'delivery': {'inside': 80, 'outside': 130}
+        },
+      });
+      expect(withShop.delivery.outside, 130);
+    });
+
+    test('store listing exposes its packs; a plain product is its own pack', () {
+      final listing = Product.fromJson({
+        'id': 'store_a_40g',
+        'name': 'বেসিল',
+        'category': 'হার্বস ও স্পাইস',
+        'price': 270,
+        'image': '',
+        'description': '',
+        'weight': '40g Glass Jar',
+        'packs': [
+          {'id': 'store_a_40g', 'name': 'বেসিল', 'category': '', 'price': 270, 'image': '', 'description': '', 'weight': '40g Glass Jar', 'packLabel': '৪০ গ্রাম জার'},
+          {'id': 'store_a_80g', 'name': 'বেসিল', 'category': '', 'price': 480, 'originalPrice': 600, 'image': '', 'description': '', 'weight': '80g Eco Refill'},
+        ],
+      });
+      expect(listing.allPacks.map((p) => p.id), ['store_a_40g', 'store_a_80g']);
+      expect(listing.minPrice, 270);
+      expect(listing.allPacks.first.packName, '৪০ গ্রাম জার');
+      expect(listing.allPacks.last.packName, '80g Eco Refill');
+      const plain = Product(id: 'x', name: '', category: '', price: 99, image: '', description: '', weight: '1 jar');
+      expect(plain.allPacks.single.id, 'x');
+    });
+
+    test('store order shows the store number', () {
+      final o = Order.fromJson({'id': 'ord_1', 'items': [], 'totalAmount': 1760, 'status': 'pending', 'shippingAddress': 'x', 'createdAt': '', 'storeOrderNo': 'BM10042'});
+      expect(o.displayNo, 'BM10042');
+      expect(Order.fromJson({'id': 'ord_2', 'items': [], 'totalAmount': 1, 'status': 'pending', 'shippingAddress': 'x', 'createdAt': ''}).displayNo, 'ord_2');
     });
 
     test('points per product fall back to 1 per ৳10', () {

@@ -28,7 +28,11 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
     super.dispose();
   }
 
-  bool get _typed => _confirm.text.trim() == _confirmWord;
+  // English fallback for phones without a Bengali keyboard.
+  bool get _typed {
+    final t = _confirm.text.trim();
+    return t == _confirmWord || t.toUpperCase() == 'DELETE';
+  }
 
   Future<void> _delete() async {
     final ok = await confirmDialog(
@@ -90,7 +94,7 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
           ]),
         ),
         const SizedBox(height: 12),
-        FieldLabel('নিশ্চিত করতে নিচে "$_confirmWord" লিখুন'),
+        FieldLabel('নিশ্চিত করতে নিচে "$_confirmWord" অথবা DELETE লিখুন'),
         TextField(
           controller: _confirm,
           decoration: const InputDecoration(hintText: _confirmWord),

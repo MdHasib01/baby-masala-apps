@@ -15,7 +15,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.nuktatechnology.baby_care"
+    namespace = "com.babymasalabd.babycare"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -26,7 +26,7 @@ android {
 
     defaultConfig {
         // The Play Store package name — never change it after the first upload.
-        applicationId = "com.nuktatechnology.baby_care"
+        applicationId = "com.babymasalabd.babycare"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         // From `version: x.y.z+N` in pubspec.yaml; bump N for every Play upload.

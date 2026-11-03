@@ -32,6 +32,7 @@ class BootstrapData {
     this.doctors = const [],
     this.doctorQuestions = const [],
     this.leaderboard = const [],
+    this.delivery = const ShopDelivery(),
   });
 
   final User user;
@@ -55,6 +56,9 @@ class BootstrapData {
   final List<DoctorQuestion> doctorQuestions;
   final List<LeaderboardEntry> leaderboard;
 
+  /// Store delivery charges (`shop.delivery`); defaults on older servers.
+  final ShopDelivery delivery;
+
   factory BootstrapData.fromJson(Json j) => BootstrapData(
         user: User.fromJson(jMap(j, 'user')),
         children: jList(j, 'children', Child.fromJson),
@@ -76,5 +80,8 @@ class BootstrapData {
         doctors: jList(j, 'doctors', Doctor.fromJson),
         doctorQuestions: jList(j, 'doctorQuestions', DoctorQuestion.fromJson),
         leaderboard: jList(j, 'leaderboard', LeaderboardEntry.fromJson),
+        delivery: j['shop'] is Map && (j['shop'] as Map)['delivery'] is Map
+            ? ShopDelivery.fromJson(Map<String, dynamic>.from((j['shop'] as Map)['delivery'] as Map))
+            : const ShopDelivery(),
       );
 }

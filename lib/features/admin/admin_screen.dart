@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/api/api_exception.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/bn_digits.dart';
+import '../../core/utils/links.dart';
 import '../../data/models/commerce.dart';
 import '../../data/models/complaint.dart';
 import '../../data/services/baby_care_api.dart';
@@ -231,7 +232,22 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                         ),
                     ]),
                     // ---- products
-                    _list([for (final p in d.products) _ProductStockRow(product: p, onSave: (s) => _run(() async => admin.updateProduct(p.id, stock: s)))]),
+                    _list([
+                      AppCard(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text('শপের পণ্য, দাম ও প্যাক এখন Baby Masala স্টোর থেকে আসে। পরিবর্তন করতে স্টোর অ্যাডমিন ব্যবহার করুন। অ্যাপের অর্ডারও সেখানে দেখা যাবে।',
+                              style: ts(12, height: 1.5)),
+                          const SizedBox(height: 8),
+                          OutlinedButton.icon(
+                            onPressed: () => openUrl(context, 'https://store.babymasalabd.com/admin'),
+                            icon: const Icon(LucideIcons.externalLink, size: 15),
+                            label: const Text('স্টোর অ্যাডমিন'),
+                          ),
+                        ]),
+                      ),
+                      for (final p in d.products) _StoreProductRow(product: p),
+                    ]),
                     // ---- contests & submissions
                     _list([
                       for (final c in contests)
@@ -313,27 +329,15 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
       );
 }
 
-class _ProductStockRow extends StatefulWidget {
-  const _ProductStockRow({required this.product, required this.onSave});
+/// Store product in the admin list (read-only; managed in the store admin).
+class _StoreProductRow extends StatelessWidget {
+  const _StoreProductRow({required this.product});
   final Product product;
-  final void Function(int stock) onSave;
-
-  @override
-  State<_ProductStockRow> createState() => _ProductStockRowState();
-}
-
-class _ProductStockRowState extends State<_ProductStockRow> {
-  late final _ctrl = TextEditingController(text: '${widget.product.stock}');
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
-    final p = widget.product;
+    final p = product;
+    final packs = p.allPacks;
     return AppCard(
       padding: const EdgeInsets.all(12),
       child: Row(children: [
@@ -341,24 +345,10 @@ class _ProductStockRowState extends State<_ProductStockRow> {
         const SizedBox(width: 10),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(p.name, style: ts(12.5, weight: bold)),
-            Text(taka(p.price), style: ts(11.5, color: AppColors.olive)),
+            Text(p.name, style: ts(12.5, weight: bold), maxLines: 2, overflow: TextOverflow.ellipsis),
+            Text(packs.length > 1 ? '${taka(p.minPrice)} থেকে · ${toBnDigits(packs.length)}টি প্যাক' : taka(p.price),
+                style: ts(11.5, color: AppColors.olive)),
           ]),
-        ),
-        Text('স্টক:', style: ts(11.5)),
-        const SizedBox(width: 6),
-        SizedBox(
-          width: 64,
-          child: TextField(
-            controller: _ctrl,
-            keyboardType: TextInputType.number,
-            textAlign: TextAlign.center,
-            onSubmitted: (v) => widget.onSave((int.tryParse(v) ?? 0).clamp(0, 1 << 30)),
-          ),
-        ),
-        IconButton(
-          onPressed: () => widget.onSave((int.tryParse(_ctrl.text) ?? 0).clamp(0, 1 << 30)),
-          icon: const Icon(LucideIcons.check, size: 18, color: AppColors.green700),
         ),
       ]),
     );

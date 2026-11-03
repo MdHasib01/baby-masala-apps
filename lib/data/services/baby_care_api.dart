@@ -125,17 +125,23 @@ class BabyCareApi {
 
   Future<({Order order, RewardTransaction? rewardTx, List<Product> products})> placeOrder({
     required List<CartItem> cart,
+    required String customerName,
+    required String phone,
+    required String area,
     required String shippingAddress,
     String? notes,
-    required String paymentMethod,
   }) async {
+    // Placed on the Baby Masala store by the server (cash on delivery).
     final r = await _c.post(
         '/orders',
         compact({
           'items': cart.map((i) => i.toApi()).toList(),
+          'customerName': customerName,
+          'phone': phone,
+          'area': area,
           'shippingAddress': shippingAddress,
           'notes': (notes == null || notes.trim().isEmpty) ? null : notes,
-          'paymentMethod': paymentMethod,
+          'paymentMethod': 'cod',
         }));
     return (
       order: Order.fromJson(jMap(r, 'order')),

@@ -1,6 +1,6 @@
 # Google Play release checklist — Baby Care by Baby Masala
 
-Package: `com.nuktatechnology.baby_care` · Publisher: Nukta Technologies · Support: smnr7770@gmail.com
+Package: `com.babymasalabd.babycare` · Publisher: Nukta Technologies · Support: smnr7770@gmail.com
 
 Do the steps in order. The listing points at web pages and a live API, so **deploy the backend and the web site before you submit.**
 
@@ -82,10 +82,16 @@ keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab   #
 >
 > Note: the information in the app is general guidance, not medical advice.
 
-**Graphics you still need to make:**
+**Graphics:**
 - App icon, 512×512 PNG: use `assets/images/logo.png` (it is already 512×512).
-- Feature graphic, 1024×500 PNG/JPG.
-- At least 2 phone screenshots (1080×1920 recommended), for example Home feed, My Baby, Recipes, Shop and Rewards. Don't show real users' personal data.
+- **Feature graphic (1024×500)**: Generated and ready at `playstore_screenshots/feature_graphic.png` and `feature_graphic.png`.
+- **Phone screenshots (1080×1920)**: 5 professional marketing screenshots are generated and ready in `playstore_screenshots/`:
+  1. `screen_1_community.png` (Community Feed & Parenting Support)
+  2. `screen_2_baby_growth.png` (My Baby Food Chart & Routine Tracker)
+  3. `screen_3_recipes.png` (Healthy Age-Based Baby Recipes)
+  4. `screen_4_shop.png` (Organic Spices & Herbs Shop)
+  5. `screen_5_rewards.png` (Rewards Club, Points & Free Gifts)
+  *(Unframed raw device screenshots are also archived in `playstore_screenshots/raw/`)*
 
 ## 4. App content (Policy → App content)
 

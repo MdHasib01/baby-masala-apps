@@ -65,14 +65,14 @@ class NotificationPrefs {
 }
 
 class PrivacySettings {
-  const PrivacySettings({this.shareProfile = true, this.showChildrenInfo = true});
+  const PrivacySettings({this.shareProfile = true, this.showChildrenInfo = false});
 
   final bool shareProfile;
   final bool showChildrenInfo;
 
   factory PrivacySettings.fromJson(Json j) => PrivacySettings(
         shareProfile: jBool(j, 'shareProfile', true),
-        showChildrenInfo: jBool(j, 'showChildrenInfo', true),
+        showChildrenInfo: jBool(j, 'showChildrenInfo', false),
       );
 
   Json toJson() => {'shareProfile': shareProfile, 'showChildrenInfo': showChildrenInfo};

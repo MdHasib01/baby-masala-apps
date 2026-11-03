@@ -8,9 +8,9 @@ import '../../data/models/commerce.dart';
 import '../../shared/widgets/common.dart';
 import '../../state/app_data_controller.dart';
 
-/// "আমার অর্ডার" — MOBILE-ONLY (web has no order history screen yet).
+/// "আমার অর্ডার" — same as the web Shop tab's order list.
 /// Uses `orders` from bootstrap; status changes made in Admin show up after
-/// refresh.
+/// refresh. Store orders show their store number (BM…).
 Future<void> showOrdersSheet(BuildContext context) =>
     showAppSheet<void>(context, title: 'আমার অর্ডার', builder: (_) => const _Orders());
 
@@ -38,7 +38,7 @@ class _Orders extends ConsumerWidget {
             padding: const EdgeInsets.all(14),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
-                Expanded(child: Text('#${o.id}', style: ts(12, weight: bold))),
+                Expanded(child: Text('#${o.displayNo}', style: ts(12, weight: bold))),
                 Tag(orderStatusLabels[o.status] ?? o.status,
                     bg: orderStatusColor(o.status).withValues(alpha: 0.1), fg: orderStatusColor(o.status)),
               ]),
@@ -46,7 +46,10 @@ class _Orders extends ConsumerWidget {
               Text(o.createdAt, style: ts(10.5, color: AppColors.grey500)),
               const SizedBox(height: 8),
               for (final i in o.items)
-                Text('• ${i.product.name} x ${toBnDigits(i.quantity)}', style: ts(12, height: 1.5)),
+                Text(
+                  '• ${i.product.name}${i.product.packName.isNotEmpty ? ' (${i.product.packName})' : ''} × ${toBnDigits(i.quantity)}',
+                  style: ts(12, height: 1.5),
+                ),
               const Divider(height: 18),
               Row(children: [
                 Expanded(child: Text('সর্বমোট: ${taka(o.totalAmount)}', style: ts(13, weight: bold, color: AppColors.maroon))),

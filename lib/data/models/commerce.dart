@@ -14,6 +14,15 @@ class Product {
     this.rating = 0,
     this.reviewsCount = 0,
     this.pointsEarned,
+    this.packLabel = '',
+    this.short = '',
+    this.badge = '',
+    this.age = '',
+    this.howToUse = '',
+    this.benefits = const [],
+    this.includes = const [],
+    this.storeUrl,
+    this.packs = const [],
   });
 
   final String id;
@@ -28,6 +37,27 @@ class Product {
   final double rating;
   final int reviewsCount;
   final int? pointsEarned;
+
+  // ---- Baby Masala store fields (backend/src/services/storeCatalog.js) ----
+  /// Pack name shown to the customer, e.g. "৫টি জারের সম্পূর্ণ সেট". `weight` is the store's pack key.
+  final String packLabel;
+  final String short;
+  final String badge;
+  final String age;
+  final String howToUse;
+  final List<String> benefits;
+
+  /// Combo contents.
+  final List<String> includes;
+  final String? storeUrl;
+
+  /// Every pack size of a listing. Each pack is its own cart item.
+  final List<Product> packs;
+
+  /// Packs to choose from; a product without packs (older server) is its own only pack.
+  List<Product> get allPacks => packs.isEmpty ? [this] : packs;
+  double get minPrice => allPacks.map((p) => p.price).reduce((a, b) => a < b ? a : b);
+  String get packName => packLabel.isNotEmpty ? packLabel : weight;
 
   /// Same rule as the backend: `pointsEarned × qty`, or 1 point per ৳10.
   int pointsFor(int qty) => pointsEarned != null ? pointsEarned! * qty : (price * qty / 10).floor();
@@ -45,6 +75,15 @@ class Product {
         rating: jDouble(j, 'rating'),
         reviewsCount: jInt(j, 'reviewsCount'),
         pointsEarned: jIntN(j, 'pointsEarned'),
+        packLabel: jStr(j, 'packLabel'),
+        short: jStr(j, 'short'),
+        badge: jStr(j, 'badge'),
+        age: jStr(j, 'age'),
+        howToUse: jStr(j, 'howToUse'),
+        benefits: jStrList(j, 'benefits'),
+        includes: jStrList(j, 'includes'),
+        storeUrl: jStrN(j, 'storeUrl'),
+        packs: jList(j, 'packs', Product.fromJson),
       );
 }
 
@@ -62,14 +101,22 @@ class CartItem {
   CartItem withQuantity(int q) => CartItem(product: product, quantity: q);
 }
 
-/// Delivery rule shared with the backend (routes/shop.js): free over ৳1000.
-const freeDeliveryThreshold = 1000;
-const deliveryCharge = 60;
-double deliveryFor(double subtotal) => subtotal > freeDeliveryThreshold ? 0 : deliveryCharge.toDouble();
+/// Store delivery charges by area (`shop.delivery` in bootstrap / GET /products).
+class ShopDelivery {
+  const ShopDelivery({this.inside = 70, this.outside = 110});
+  final double inside;
+  final double outside;
+
+  double forArea(String area) => area == 'outside' ? outside : inside;
+
+  factory ShopDelivery.fromJson(Json j) => ShopDelivery(inside: jDouble(j, 'inside', 70), outside: jDouble(j, 'outside', 110));
+}
+
+const deliveryAreaLabels = {'inside': 'ঢাকার ভিতরে', 'outside': 'ঢাকার বাইরে'};
 
 const orderStatuses = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
 const orderStatusLabels = {
-  'pending': 'অপেক্ষমাণ',
+  'pending': 'কনফার্মের অপেক্ষায়',
   'confirmed': 'নিশ্চিত',
   'shipped': 'পাঠানো হয়েছে',
   'delivered': 'ডেলিভারি সম্পন্ন',
@@ -90,6 +137,9 @@ class Order {
     required this.createdAt,
     this.pointsEarned = 0,
     this.userId,
+    this.storeOrderNo,
+    this.phone,
+    this.area,
   });
 
   final String id;
@@ -105,6 +155,13 @@ class Order {
   final int pointsEarned;
   final String? userId; // admin overview only
 
+  /// Order number on the Baby Masala store, e.g. "BM10042".
+  final String? storeOrderNo;
+  final String? phone;
+  final String? area;
+
+  String get displayNo => storeOrderNo ?? id;
+
   factory Order.fromJson(Json j) => Order(
         id: jStr(j, 'id'),
         items: jList(j, 'items', CartItem.fromJson),
@@ -118,6 +175,9 @@ class Order {
         createdAt: jStr(j, 'createdAt'),
         pointsEarned: jInt(j, 'pointsEarned'),
         userId: jStrN(j, 'userId'),
+        storeOrderNo: jStrN(j, 'storeOrderNo'),
+        phone: jStrN(j, 'phone'),
+        area: jStrN(j, 'area'),
       );
 }
 

@@ -159,7 +159,7 @@ class _VerifyScreenState extends ConsumerState<VerifyScreen> {
         ),
         const SizedBox(height: 6),
         Center(
-          child: TextButton(onPressed: () => session.goTo(back), child: const Text('যোগাযোগ নম্বর পরিবর্তন করুন')),
+          child: TextButton(onPressed: () => session.goTo(back), child: const Text('ইমেইল পরিবর্তন করুন')),
         ),
       ],
     );

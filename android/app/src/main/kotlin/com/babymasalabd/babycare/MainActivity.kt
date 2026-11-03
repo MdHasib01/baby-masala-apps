@@ -1,4 +1,4 @@
-package com.nuktatechnology.baby_care
+package com.babymasalabd.babycare
 
 import io.flutter.embedding.android.FlutterActivity
 

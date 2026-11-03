@@ -32,6 +32,7 @@ class AppData {
     this.doctors = const [],
     this.doctorQuestions = const [],
     this.leaderboard = const [],
+    this.delivery = const ShopDelivery(),
     this.postsCursor,
   });
 
@@ -56,6 +57,7 @@ class AppData {
         doctors: b.doctors,
         doctorQuestions: b.doctorQuestions,
         leaderboard: b.leaderboard,
+        delivery: b.delivery,
       );
 
   final User user;
@@ -78,6 +80,9 @@ class AppData {
   final List<Doctor> doctors;
   final List<DoctorQuestion> doctorQuestions;
   final List<LeaderboardEntry> leaderboard;
+
+  /// Store delivery charges by area.
+  final ShopDelivery delivery;
 
   /// ISO cursor for `GET /posts?before=` (null = not fetched yet / no more).
   final String? postsCursor;
@@ -140,6 +145,7 @@ class AppData {
         doctors: doctors ?? this.doctors,
         doctorQuestions: doctorQuestions ?? this.doctorQuestions,
         leaderboard: leaderboard ?? this.leaderboard,
+        delivery: delivery,
         postsCursor: clearCursor ? null : (postsCursor ?? this.postsCursor),
       );
 }

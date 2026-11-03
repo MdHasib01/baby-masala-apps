@@ -270,22 +270,21 @@ class _RewardsTabState extends ConsumerState<RewardsTab> {
         ),
       );
 
-  /// Uses `contest.winners` from the API; falls back to the same hard-coded
-  /// winners the web shows when no contest has winners yet.
+  /// Real winners from `contest.winners` only (no made-up names).
   List<Widget> _winners(List<Contest> contests) {
-    final real = [
+    final rows = [
       for (final c in contests)
         for (final w in c.winners) (c.title, w.name, w.prize),
     ];
-    final rows = real.isNotEmpty
-        ? real
-        : const [
-            ('সেরা বেবি রেসিপি কনটেস্ট (অক্টোবর)', 'সুমাইয়া শারমিন (ধানমন্ডি, ঢাকা)', '১ম স্থান'),
-            ('স্বাস্থ্যকর পুষ্টি টিপস কনটেস্ট (সেপ্টেম্বর)', 'ফারহানা সুলতানা (উত্তরা, ঢাকা)', '১ম স্থান'),
-          ];
     return [
       Text('গত কনটেস্টের বিজয়ীবৃন্দ', style: ts(15, weight: bold, color: AppColors.maroon)),
       const SizedBox(height: 12),
+      if (rows.isEmpty)
+        const EmptyState(
+          icon: LucideIcons.trophy,
+          title: 'এখনো কোনো বিজয়ী ঘোষণা হয়নি',
+          message: 'কনটেস্ট শেষ হলে বিজয়ীদের নাম এখানে দেখানো হবে।',
+        ),
       for (final (title, name, prize) in rows)
         Padding(
           padding: const EdgeInsets.only(bottom: 10),

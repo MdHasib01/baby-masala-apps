@@ -159,9 +159,13 @@ class Tag extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (icon != null) ...[Icon(icon, size: 11, color: fg), const SizedBox(width: 3)],
-        Text(
-          text,
-          style: ts(10, weight: bold, color: fg),
+        Flexible(
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: ts(10, weight: bold, color: fg),
+          ),
         ),
       ],
     ),
