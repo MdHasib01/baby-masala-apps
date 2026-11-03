@@ -10,6 +10,7 @@ class Post {
     required this.authorName,
     required this.authorAvatar,
     this.isVerifiedBuyer = false,
+    this.isAi = false,
     required this.topic,
     required this.content,
     this.mediaUrl,
@@ -29,6 +30,8 @@ class Post {
   final String authorName;
   final String authorAvatar;
   final bool isVerifiedBuyer;
+  /// Written by a labeled AI persona (its name also ends with "(AI)").
+  final bool isAi;
   final String topic;
   final String content;
   final String? mediaUrl;
@@ -61,6 +64,7 @@ class Post {
         authorName: jStr(j, 'authorName'),
         authorAvatar: jStr(j, 'authorAvatar'),
         isVerifiedBuyer: jBool(j, 'isVerifiedBuyer'),
+        isAi: jBool(j, 'isAi'),
         topic: jStr(j, 'topic'),
         content: jStr(j, 'content'),
         mediaUrl: jStrN(j, 'mediaUrl'),
@@ -103,6 +107,7 @@ class Post {
       authorName: authorName,
       authorAvatar: authorAvatar,
       isVerifiedBuyer: isVerifiedBuyer,
+      isAi: isAi,
       topic: topic,
       content: content,
       mediaUrl: mediaUrl,
@@ -124,6 +129,7 @@ class Post {
         authorName: authorName,
         authorAvatar: authorAvatar,
         isVerifiedBuyer: isVerifiedBuyer,
+        isAi: isAi,
         topic: topic,
         content: content,
         mediaUrl: mediaUrl,
@@ -147,6 +153,7 @@ class Comment {
     this.authorId,
     required this.authorName,
     required this.authorAvatar,
+    this.isAi = false,
     required this.content,
     required this.createdAt,
     this.likes = 0,
@@ -159,6 +166,8 @@ class Comment {
   final String? authorId;
   final String authorName;
   final String authorAvatar;
+  /// Written by a labeled AI persona.
+  final bool isAi;
   final String content;
   final String createdAt;
   final int likes;
@@ -170,6 +179,7 @@ class Comment {
         authorId: jStrN(j, 'authorId'),
         authorName: jStr(j, 'authorName'),
         authorAvatar: jStr(j, 'authorAvatar'),
+        isAi: jBool(j, 'isAi'),
         content: jStr(j, 'content'),
         createdAt: jStr(j, 'createdAt'),
         likes: jInt(j, 'likes'),

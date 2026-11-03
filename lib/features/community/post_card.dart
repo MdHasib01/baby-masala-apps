@@ -57,6 +57,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                     onTap: () => widget.onOpenAuthor?.call(post.authorName, post.authorId),
                     child: Text(post.authorName, style: ts(13, weight: bold)),
                   ),
+                  if (post.isAi) const Tag('AI', icon: LucideIcons.bot),
                   if (post.isVerifiedBuyer)
                     const Tag('মেম্বার', icon: LucideIcons.shieldCheck, bg: Color(0xFFFEF3C7), fg: AppColors.amber800),
                   if (post.status != 'approved')
@@ -166,7 +167,10 @@ class _PostCardState extends ConsumerState<PostCard> {
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     GestureDetector(
                       onTap: () => widget.onOpenAuthor?.call(comments.first.authorName, comments.first.authorId),
-                      child: Text(comments.first.authorName, style: ts(11.5, weight: bold)),
+                      child: Wrap(crossAxisAlignment: WrapCrossAlignment.center, spacing: 4, children: [
+                        Text(comments.first.authorName, style: ts(11.5, weight: bold)),
+                        if (comments.first.isAi) const Tag('AI', icon: LucideIcons.bot),
+                      ]),
                     ),
                     Text(comments.first.content, style: ts(12, height: 1.4)),
                   ]),

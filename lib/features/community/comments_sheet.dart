@@ -131,7 +131,10 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
                 AppAvatar(post.authorAvatar, size: 36),
                 const SizedBox(width: 10),
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(post.authorName, style: ts(13, weight: bold)),
+                  Row(mainAxisSize: MainAxisSize.min, children: [
+                    Text(post.authorName, style: ts(13, weight: bold)),
+                    if (post.isAi) ...[const SizedBox(width: 4), const Tag('AI', icon: LucideIcons.bot)],
+                  ]),
                   Text(post.createdAt, style: ts(10.5, color: AppColors.grey500)),
                 ]),
               ]),
@@ -243,7 +246,10 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   GestureDetector(
                     onTap: () => _openAuthor(c.authorName, c.authorId),
-                    child: Text(c.authorName, style: ts(12, weight: bold)),
+                    child: Wrap(crossAxisAlignment: WrapCrossAlignment.center, spacing: 4, children: [
+                      Text(c.authorName, style: ts(12, weight: bold)),
+                      if (c.isAi) const Tag('AI', icon: LucideIcons.bot),
+                    ]),
                   ),
                   const SizedBox(height: 2),
                   Text(c.content, style: ts(12.5, height: 1.4)),
