@@ -126,10 +126,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                   alignment: Alignment.center,
                   child: const Icon(LucideIcons.video, color: Colors.white54, size: 40),
                 )
-              : ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 360),
-                  child: NetImage(post.mediaUrl, width: double.infinity),
-                ),
+              : FeedImage(post.mediaUrl),
         // ---- counts
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),

@@ -142,7 +142,7 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
               Text(post.content, style: ts(13, height: 1.6)),
               if (post.mediaUrl != null && !post.isVideo) ...[
                 const SizedBox(height: 10),
-                NetImage(post.mediaUrl, radius: 12, width: double.infinity, height: 200),
+                FeedImage(post.mediaUrl, radius: 12),
               ],
               const SizedBox(height: 16),
               Text('সকল কমেন্ট', style: ts(13, weight: bold, color: AppColors.maroon)),
