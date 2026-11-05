@@ -63,13 +63,18 @@ class SessionController extends Notifier<SessionState> {
 
   void goTo(AuthStage stage) => state = state.copyWith(stage: stage, clearError: true);
 
-  Future<void> requestLoginOtp(String contact) async {
-    await ref.read(apiProvider).requestOtp(contact: contact, mode: 'login');
-    state = state.copyWith(tempContact: contact, isLoginMode: true, stage: AuthStage.verify);
+  /// Signup password, kept in memory only so "resend code" still carries it.
+  String? _tempPassword;
+
+  /// Email + password login, then loads the app.
+  Future<void> login(String contact, String password) async {
+    await ref.read(apiProvider).login(contact, password);
+    await loadApp();
   }
 
-  Future<void> requestSignupOtp(String name, String contact) async {
-    await ref.read(apiProvider).requestOtp(contact: contact, mode: 'signup', name: name);
+  Future<void> requestSignupOtp(String name, String contact, String password) async {
+    await ref.read(apiProvider).requestOtp(contact: contact, mode: 'signup', name: name, password: password);
+    _tempPassword = password;
     state = state.copyWith(tempContact: contact, tempName: name, isLoginMode: false, stage: AuthStage.verify);
   }
 
@@ -77,9 +82,13 @@ class SessionController extends Notifier<SessionState> {
         contact: state.tempContact,
         mode: state.isLoginMode ? 'login' : 'signup',
         name: state.isLoginMode ? null : state.tempName,
+        password: state.isLoginMode ? null : _tempPassword,
       );
 
-  Future<void> verifyOtp(String code) => ref.read(apiProvider).verifyOtp(state.tempContact, code);
+  Future<void> verifyOtp(String code) async {
+    await ref.read(apiProvider).verifyOtp(state.tempContact, code);
+    _tempPassword = null;
+  }
 
   /// Loads all data and enters the app.
   Future<void> loadApp() async {
@@ -112,6 +121,7 @@ class SessionController extends Notifier<SessionState> {
   void _onUnauthorized() => _reset();
 
   void _reset() {
+    _tempPassword = null;
     _data.clear();
     state = const SessionState(stage: AuthStage.welcome);
   }

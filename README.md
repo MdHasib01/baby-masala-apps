@@ -8,7 +8,7 @@ flutter pub get
 flutter run --dart-define=API_BASE_URL=http://10.0.2.2:5000/api
 ```
 
-Local demo login (backend in demo mode only): `01712345678` · code `123456`. Production uses email codes.
+Local demo login (after `npm run seed:demo`): `demo@babycare.demo` / `password123`. Login is email + password; sign-up still verifies the email with a code.
 
 **Releasing to Google Play:** see [PLAY_STORE_RELEASE.md](PLAY_STORE_RELEASE.md).
 

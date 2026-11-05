@@ -207,3 +207,43 @@ class AuthHeading extends StatelessWidget {
         const SizedBox(height: 20),
       ]);
 }
+
+/// Same minimum as the backend (utils/password.js).
+const int passwordMin = 6;
+
+/// Password input with a show/hide toggle.
+class PasswordField extends StatefulWidget {
+  const PasswordField({super.key, required this.controller, this.hintText, this.onSubmitted, this.newPassword = false});
+  final TextEditingController controller;
+  final String? hintText;
+  final ValueChanged<String>? onSubmitted;
+  final bool newPassword;
+
+  @override
+  State<PasswordField> createState() => _PasswordFieldState();
+}
+
+class _PasswordFieldState extends State<PasswordField> {
+  bool _obscure = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: widget.controller,
+      obscureText: _obscure,
+      enableSuggestions: false,
+      autocorrect: false,
+      autofillHints: [widget.newPassword ? AutofillHints.newPassword : AutofillHints.password],
+      decoration: InputDecoration(
+        prefixIcon: const Icon(LucideIcons.lock, size: 18),
+        hintText: widget.hintText ?? 'আপনার পাসওয়ার্ড',
+        suffixIcon: IconButton(
+          tooltip: _obscure ? 'পাসওয়ার্ড দেখুন' : 'পাসওয়ার্ড লুকান',
+          icon: Icon(_obscure ? LucideIcons.eye : LucideIcons.eyeOff, size: 18),
+          onPressed: () => setState(() => _obscure = !_obscure),
+        ),
+      ),
+      onSubmitted: widget.onSubmitted,
+    );
+  }
+}

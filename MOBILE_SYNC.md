@@ -43,7 +43,7 @@ flutter build apk --release \
 | `WEB_ORIGIN` (used in "copy post link") | `--dart-define` → `env.dart` | `https://babymasalabd.com` |
 | Plain HTTP allowed | `android/app/src/debug/AndroidManifest.xml` (debug only) | on in debug, off in release |
 
-**Demo login:** `01712345678`, code `123456`, coupon `BABYCARE`.
+**Demo login:** `demo@babycare.demo` / `password123` (every seeded user has password `password123`), coupon `BABYCARE`.
 
 Checks:
 - `flutter analyze` (clean).
@@ -96,8 +96,8 @@ Checks:
 |---|---|---|---|---|---|
 | 1 | Loading / error | `App.tsx` | `features/auth/loading_screen.dart` | `GET /bootstrap` | ✅ |
 | 2 | Welcome | `components/auth/WelcomeScreen.tsx` | `features/auth/welcome_screen.dart` | – | ✅ |
-| 3 | Login | `components/auth/LoginScreen.tsx` | `features/auth/login_screen.dart` | `POST /auth/request-otp` (login) | ✅ |
-| 4 | Sign-up | `components/auth/SignUpScreen.tsx` | `features/auth/signup_screen.dart` | `POST /auth/request-otp` (signup) | ✅ |
+| 3 | Login (email + password) | `components/auth/LoginScreen.tsx` | `features/auth/login_screen.dart` | `POST /auth/login` | ✅ |
+| 4 | Sign-up (name, email, password) | `components/auth/SignUpScreen.tsx` | `features/auth/signup_screen.dart` | `POST /auth/request-otp` (signup, with `password`) | ✅ |
 | 5 | Code entry (6 boxes, 59 s resend) | `components/auth/LoginVerifyScreen.tsx` | `features/auth/verify_screen.dart` | `POST /auth/verify-otp` | ✅ |
 | 6 | Membership activation + demo checkout | `components/auth/MembershipActivationScreen.tsx` | `features/auth/membership_screen.dart` | `POST /auth/activate-membership`, `POST /auth/demo-purchase` | ✅ |
 | 7 | Header + 5 top tabs | `components/Header.tsx` | `features/shell/home_shell.dart` | – | 🟡 **bottom navigation** with a raised centre Home button; Friends moved under "আরও" (§6 M20) |
@@ -138,7 +138,8 @@ All calls are in `lib/data/services/baby_care_api.dart`. **Auth** column: 🔓 =
 
 | Method | Path | Dart function | Called from |
 |---|---|---|---|
-| POST 🔓 | `/auth/request-otp` | `requestOtp` | login, sign-up, resend |
+| POST 🔓 | `/auth/login` | `login` (stores token) | login |
+| POST 🔓 | `/auth/request-otp` | `requestOtp` | sign-up, resend |
 | POST 🔓 | `/auth/verify-otp` | `verifyOtp` (stores token) | verify |
 | GET | `/auth/me` | `me` | (available, unused) |
 | POST | `/auth/activate-membership` | `activateMembership` | membership screen, drawer |

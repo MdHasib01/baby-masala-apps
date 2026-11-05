@@ -19,8 +19,20 @@ class BabyCareApi {
   final ApiClient _c;
 
   // ---------------------------------------------------------------- Auth --
-  Future<void> requestOtp({required String contact, required String mode, String? name}) async {
-    await _c.post('/auth/request-otp', compact({'contact': contact, 'mode': mode, 'name': name}));
+  /// Email + password login. Stores the token on success (same as the web).
+  Future<({String token, User user, bool isNewUser})> login(String contact, String password) async {
+    final r = await _c.post('/auth/login', {'contact': contact, 'password': password});
+    final token = jStr(r, 'token');
+    await _c.tokens.set(token);
+    return (token: token, user: User.fromJson(jMap(r, 'user')), isNewUser: false);
+  }
+
+  /// Signup sends the chosen password too; it is set once the email code is verified.
+  Future<void> requestOtp({required String contact, required String mode, String? name, String? password}) async {
+    await _c.post(
+      '/auth/request-otp',
+      compact({'contact': contact, 'mode': mode, 'name': name, 'password': password}),
+    );
   }
 
   /// Stores the token on success (same as the web).

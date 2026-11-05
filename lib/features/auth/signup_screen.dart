@@ -22,13 +22,23 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   bool _agreed = false;
   final _name = TextEditingController();
   final _contact = TextEditingController();
+  final _password = TextEditingController();
+  final _confirm = TextEditingController();
   String? _error;
 
   @override
   void dispose() {
     _name.dispose();
     _contact.dispose();
+    _password.dispose();
+    _confirm.dispose();
     super.dispose();
+  }
+
+  String? _passwordError() {
+    if (_password.text.length < passwordMin) return 'পাসওয়ার্ড কমপক্ষে $passwordMin অক্ষরের হতে হবে।';
+    if (_password.text != _confirm.text) return 'দুটি পাসওয়ার্ড মেলেনি।';
+    return null;
   }
 
   Future<void> _submit() async {
@@ -37,11 +47,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     final err = name.isEmpty
         ? 'দয়া করে আপনার নাম লিখুন।'
         : validateContact(_method, contact) ??
+            _passwordError() ??
             (_agreed ? null : 'অ্যাকাউন্ট খুলতে শর্তাবলী ও গোপনীয়তা নীতিতে সম্মতি দিন।');
     setState(() => _error = err);
     if (err != null) return;
     try {
-      await ref.read(sessionProvider.notifier).requestSignupOtp(name, contact);
+      await ref.read(sessionProvider.notifier).requestSignupOtp(name, contact, _password.text);
     } catch (e) {
       if (mounted) setState(() => _error = e is ApiException ? e.message : 'কোড পাঠানো যায়নি। আবার চেষ্টা করুন।');
     }
@@ -83,6 +94,16 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             prefixIcon: Icon(_method == 'whatsapp' ? LucideIcons.phone : LucideIcons.mail, size: 18),
             hintText: _method == 'whatsapp' ? '01712345678' : 'mother@gmail.com',
           ),
+        ),
+        const SizedBox(height: 12),
+        const FieldLabel('পাসওয়ার্ড'),
+        PasswordField(controller: _password, newPassword: true, hintText: 'কমপক্ষে $passwordMin অক্ষর'),
+        const SizedBox(height: 12),
+        const FieldLabel('পাসওয়ার্ড নিশ্চিত করুন'),
+        PasswordField(
+          controller: _confirm,
+          newPassword: true,
+          hintText: 'আবার পাসওয়ার্ড লিখুন',
           onSubmitted: (_) => _submit(),
         ),
         const SizedBox(height: 8),
